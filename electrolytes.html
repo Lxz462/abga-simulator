@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>ElectrolytePhysio — Nephron, Electrolytes & Diuretics</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css?v=20261020_03">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-slate-800">
+
+  <!-- Top Navigation Bar (Identical layout and height to ABGA) -->
+  <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        
+        <!-- App Switcher (Switch between ABGA and Electrolytes) -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+            <a href="index.html" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-colors">
+              ABGA Simulator
+            </a>
+            <span class="px-2.5 py-1 rounded-md font-medium text-sky-300 bg-slate-800 shadow-sm">
+              Electrolytes & Diuretics
+            </span>
+          </div>
+        </div>
+
+        <!-- Navigation Segmented Tabs for Electrolytes -->
+        <nav class="hidden md:flex items-center gap-1 bg-slate-900/80 p-0.5 rounded-lg border border-slate-800 text-xs">
+          <button data-tab="nephron" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-100 bg-slate-800">Nephron & Diuretics</button>
+          <button data-tab="hyponatremia" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">Hyponatremia & Infusions</button>
+          <button data-tab="potassium" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">Potassium & ECG</button>
+          <button data-tab="all-electrolytes" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">All Electrolytes</button>
+          <button data-tab="pearls" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
+            <span>Exam Pearls</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-sky-950 text-sky-300 border border-sky-800/60 font-mono">18</span>
+          </button>
+          <button data-tab="quiz" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">Exam Quiz</button>
+        </nav>
+
+        <!-- Right Header Action: Reset button exactly matching ABGA -->
+        <div class="flex items-center gap-3 text-xs">
+          <button id="btn-reset-normal" class="text-slate-400 hover:text-slate-200 transition-colors">Reset</button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Sub-bar -->
+      <div class="flex md:hidden overflow-x-auto gap-1 py-1.5 border-t border-slate-800/60 text-xs">
+        <button data-tab="nephron" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-100 bg-slate-800">Nephron</button>
+        <button data-tab="hyponatremia" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-400 hover:text-slate-200">Hyponatremia</button>
+        <button data-tab="potassium" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-400 hover:text-slate-200">K⁺ & ECG</button>
+        <button data-tab="all-electrolytes" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-400 hover:text-slate-200">All Ions</button>
+        <button data-tab="pearls" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-400 hover:text-slate-200">Pearls (18)</button>
+        <button data-tab="quiz" class="nav-tab-btn px-2.5 py-1 rounded font-medium whitespace-nowrap text-slate-400 hover:text-slate-200">Exam Quiz</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ============================================================= -->
+    <!-- TAB 1: NEPHRON & DIURETICS INTERACTIVE MODEL                 -->
+    <!-- ============================================================= -->
+    <div id="panel-nephron" class="tab-content-panel space-y-5">
+      
+      <!-- Top Diuretic Selector Bar -->
+      <section class="clean-panel p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+          <div>
+            <h1 class="text-sm font-semibold text-slate-100">Nephron Physiology &amp; Diuretic Pharmacology</h1>
+          </div>
+          <span class="text-xs text-slate-500 hidden sm:inline">Interactive Model</span>
+        </div>
+
+        <!-- Diuretic Buttons Group -->
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button data-diuretic="none" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-100 bg-sky-900/60 border border-sky-600 transition-colors">
+            Baseline (No Drug)
+          </button>
+          <button data-diuretic="acetazolamide" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Acetazolamide (Diamox®)
+          </button>
+          <button data-diuretic="loop" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Loop (Furosemide / Lasix®)
+          </button>
+          <button data-diuretic="thiazide" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Thiazide (HCTZ / Esidrex®)
+          </button>
+          <button data-diuretic="spironolactone" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Spironolactone (Aldactone®)
+          </button>
+          <button data-diuretic="amiloride" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Amiloride (ENaC Blocker)
+          </button>
+          <button data-diuretic="tolvaptan" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            Tolvaptan (V2 Aquaretic)
+          </button>
+          <button data-diuretic="sglt2i" class="diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors">
+            SGLT2i (Dapagliflozin)
+          </button>
+        </div>
+      </section>
+
+      <!-- Main Interactive Nephron Stage (Full Width) -->
+      <section class="clean-panel p-4 sm:p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-800/80 gap-2">
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-slate-100">Nephron Architecture &amp; Transport Channel Pathways</h2>
+          </div>
+          <span class="text-xs text-slate-400 font-mono hidden sm:inline">Interactive Segment Flow</span>
+        </div>
+
+        <!-- Inspected Transporter Live Deep Dive Card (Directly above the Nephron Visualization) -->
+        <div id="channel-detail-card" class="p-3.5 sm:p-4 rounded-xl bg-slate-900/90 border border-sky-800/60 shadow-lg space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-2 gap-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider font-mono">Inspected Transporter:</span>
+              <h3 id="channel-name" class="text-sm sm:text-base font-bold text-slate-100"></h3>
+            </div>
+            <span id="channel-segment" class="text-xs text-slate-400 font-mono"></span>
+          </div>
+
+          <div class="text-xs text-slate-300 font-mono">
+            <span class="text-slate-500">Substrates &amp; Flow:</span> <span id="channel-ions" class="text-slate-200"></span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+            <div class="md:col-span-7 p-3 rounded-lg bg-slate-950/70 border border-slate-800/80 text-xs sm:text-[13px] text-slate-300 leading-relaxed" id="channel-explain"></div>
+            <div id="channel-pearl-box" class="md:col-span-5 p-3 rounded-lg bg-amber-950/20 border border-amber-900/40 text-xs text-amber-200 space-y-1">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold block">High-Yield Exam Takeaway</span>
+              <p id="channel-pearl" class="leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tubular Flow Container -->
+        <div id="nephron-svg-container" class="w-full"></div>
+      </section>
+
+      <!-- Diuretic Pharmacology & Urinary Consequences Dashboard (2 Columns) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Live Electrolyte Shift Gauges (6 cols) -->
+        <div class="lg:col-span-6 clean-panel p-4 space-y-3">
+          <div class="border-b border-slate-800/80 pb-2 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-200">Urinary &amp; Serum Consequences</span>
+            <span class="text-[10px] text-slate-500 font-mono">Dynamic shifts</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1">
+              <span class="text-[10px] text-slate-500 block uppercase">Urinary Sodium</span>
+              <span id="gauge-u-na" class="font-semibold text-slate-200 text-sm">Normal</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1">
+              <span class="text-[10px] text-slate-500 block uppercase">Urinary Potassium</span>
+              <span id="gauge-u-k" class="font-semibold text-slate-200 text-sm">Normal</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1">
+              <span class="text-[10px] text-slate-500 block uppercase">Urinary Calcium</span>
+              <span id="gauge-u-ca" class="font-semibold text-slate-200 text-sm">Normal</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 space-y-1">
+              <span class="text-[10px] text-slate-500 block uppercase">Serum Potassium</span>
+              <span id="gauge-s-k" class="font-semibold text-slate-200 text-sm">4.2 mmol/L</span>
+            </div>
+          </div>
+
+          <!-- Acid-Base Impact Banner -->
+          <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 space-y-1 text-xs">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="text-slate-400">Acid-Base Outcome:</span>
+              <span id="gauge-s-ph" class="font-semibold text-sky-300">Normal (7.40)</span>
+            </div>
+            <p id="diuretic-acid-base" class="text-slate-300 text-[11px] leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Molecular Mechanism & Debrief (6 cols) -->
+        <div class="lg:col-span-6 clean-panel p-4 space-y-3">
+          <div class="border-b border-slate-800/80 pb-2">
+            <div class="text-[10px] font-semibold text-sky-400 uppercase tracking-wider font-mono" id="diuretic-class">Diuretic Class</div>
+            <h2 id="diuretic-name" class="text-sm font-semibold text-slate-100 mt-0.5">Normal State</h2>
+            <div class="text-[11px] text-slate-400 mt-0.5" id="diuretic-segment">All segments</div>
+          </div>
+
+          <div class="space-y-1 text-xs text-slate-300">
+            <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-400 block font-mono">Mechanism of Action</span>
+            <p id="diuretic-mechanism" class="leading-relaxed"></p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
+            <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-300 block font-mono">Exam Pearls &amp; Clinical Traps</span>
+            <ul id="diuretic-pearls" class="space-y-1 text-xs text-slate-300"></ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 2: HYPONATREMIA ALGORITHM & DEFICIT CALCULATOR            -->
+    <!-- ============================================================= -->
+    <div id="panel-hyponatremia" class="tab-content-panel space-y-5 hidden">
+      
+      <!-- Top Diagnostic Decision Tree -->
+      <section class="clean-panel p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+          <div>
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Clinical Decision Tree</span>
+            <h2 class="text-base font-semibold text-slate-100 mt-0.5">3-Step Hyponatremia Diagnostic Algorithm (Serum [Na⁺] &lt; 135 mmol/L)</h2>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800">
+            <span class="text-slate-300">1. Tonicity</span>
+            <span class="text-slate-600">→</span>
+            <span class="text-slate-300">2. Urine Na⁺</span>
+            <span class="text-slate-600">→</span>
+            <span class="text-slate-300">3. Volume &amp; SIADH</span>
+          </div>
+        </div>
+
+        <!-- 3 Interactive Steps (Equal height, clean modern cards) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          
+          <!-- Step 1 -->
+          <div class="clean-panel-subtle p-4 rounded-xl flex flex-col justify-between space-y-3 border border-slate-800/80">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono font-semibold text-[10px]">STEP 01</span>
+                  <span class="font-semibold text-slate-200">Serum Tonicity</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">Effective Osm</span>
+              </div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Formula: <span class="font-mono text-slate-200 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">2·[Na⁺] + [Glucose] + [Urea]</span>
+              </p>
+              
+              <div class="space-y-1.5 pt-1 text-[11px]">
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-200 font-semibold">&gt; 295 mOsm/kg</span>
+                    <span class="text-slate-500 text-[10px]">Hypertonic</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">Hyperglycemia (DKA/HHS) or IV Mannitol shifts water out of cells.</p>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-200 font-semibold">280 – 295 mOsm/kg</span>
+                    <span class="text-slate-500 text-[10px]">Isotonic</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">Pseudohyponatremia (severe lipids/myeloma) or TURP bladder irrigation.</p>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-700 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-sky-300 font-semibold">&lt; 280 mOsm/kg</span>
+                    <span class="text-sky-400 text-[10px]">Hypotonic</span>
+                  </div>
+                  <p class="text-slate-300 text-[11px]">True hypotonic hyponatremia. <strong>Proceed to Step 2!</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="clean-panel-subtle p-4 rounded-xl flex flex-col justify-between space-y-3 border border-slate-800/80">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono font-semibold text-[10px]">STEP 02</span>
+                  <span class="font-semibold text-slate-200">Urine Sodium</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">[Na⁺]_u</span>
+              </div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Are kidneys actively dumping salt or conserving it with maximal avidity?
+              </p>
+
+              <div class="space-y-1.5 pt-1 text-[11px]">
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-200 font-semibold">Urine Na⁺ ≥ 20–40 mmol/L</span>
+                    <span class="text-slate-400 text-[10px]">Renal Loss</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">Kidneys failing to reabsorb sodium (Diuretics, SIADH, Addison disease, tubular damage).</p>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-200 font-semibold">Urine Na⁺ &lt; 20 mmol/L</span>
+                    <span class="text-slate-400 text-[10px]">Extrarenal Loss</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">Intact kidney avidity: desperately saving salt (Diarrhea, vomiting, burns, CHF, cirrhosis).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="clean-panel-subtle p-4 rounded-xl flex flex-col justify-between space-y-3 border border-slate-800/80">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono font-semibold text-[10px]">STEP 03</span>
+                  <span class="font-semibold text-slate-200">Volume Status &amp; SIADH</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">Biomarkers</span>
+              </div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Assess clinical extracellular volume (edema, BP) and serum biomarkers.
+              </p>
+
+              <div class="space-y-1.5 pt-1 text-[11px]">
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                  <span class="text-slate-200 font-semibold block font-mono">SIADH Diagnostic Triad</span>
+                  <ul class="text-slate-400 space-y-0.5 text-[11px] list-disc list-inside">
+                    <li>Clinical euvolemia (no peripheral edema, normal BP)</li>
+                    <li>Inappropriate urine: Osm &gt; 100 &amp; Na⁺ &gt; 40</li>
+                    <li><strong class="text-slate-200">Low Serum Uric Acid (&lt; 200 µmol/L)</strong></li>
+                  </ul>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-0.5">
+                  <div class="flex items-center justify-between font-mono">
+                    <span class="text-slate-200 font-semibold">Urine Osm &lt; 100 mOsm/kg</span>
+                    <span class="text-slate-500 text-[10px]">Dilute</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">Water overload / low solute: Beer potomania or psychogenic polydipsia.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Sodium Deficit & Infusion Rate Calculator -->
+      <section class="clean-panel p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-sky-400 font-semibold font-mono">Clinical Infusion Engineering</div>
+            <h2 class="text-base font-semibold text-slate-100 mt-0.5">Sodium Deficit &amp; 3% NaCl Infusion Rate Calculator</h2>
+          </div>
+          <button id="btn-preset-gabutti-calc" class="px-3 py-1.5 rounded-lg text-xs font-medium text-sky-300 bg-sky-950/60 border border-sky-800 hover:bg-sky-900/60 transition-colors">
+            Load Clinical Case (70kg, 120 ➔ 126 in 12h)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          <!-- Inputs (6 cols) -->
+          <div class="lg:col-span-6 space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-400 block text-[11px] mb-1">Current Serum [Na⁺] (mmol/L)</label>
+                <input type="number" id="input-actual-na" value="120" min="95" max="150" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 font-mono text-slate-100">
+              </div>
+              <div>
+                <label class="text-slate-400 block text-[11px] mb-1">Target [Na⁺] in Timeframe (mmol/L)</label>
+                <input type="number" id="input-target-na" value="126" min="100" max="150" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 font-mono text-slate-100">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="text-slate-400 block text-[11px] mb-1">Duration (Hours)</label>
+                <input type="number" id="input-duration" value="12" min="1" max="72" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 font-mono text-slate-100">
+              </div>
+              <div>
+                <label class="text-slate-400 block text-[11px] mb-1">Weight (kg)</label>
+                <input type="number" id="input-weight" value="70" min="30" max="180" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 font-mono text-slate-100">
+              </div>
+              <div>
+                <label class="text-slate-400 block text-[11px] mb-1">Gender</label>
+                <select id="select-gender" class="clean-select w-full text-xs">
+                  <option value="male">Male (60% TBW)</option>
+                  <option value="female">Female (50% TBW)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                <input type="checkbox" id="check-elderly" class="rounded bg-slate-900 border-slate-800 text-sky-500">
+                <span>Elderly Patient (TBW factor reduced by 5%)</span>
+              </label>
+
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400">Infusate:</span>
+                <select id="select-infusate" class="clean-select text-xs">
+                  <option value="nacl_3">Hypertonic 3% NaCl (513 mmol/L)</option>
+                  <option value="nacl_09">Normal Saline 0.9% (154 mmol/L)</option>
+                  <option value="ringer_lactate">Ringer's Lactate (130 mmol/L)</option>
+                  <option value="d5w">5% Dextrose in Water (0 mmol/L)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outputs & ODS Guardrail (6 cols) -->
+          <div class="lg:col-span-6 space-y-3 text-xs">
+            
+            <!-- Result Cards Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">Total Na⁺ Deficit</span>
+                <span id="res-deficit-mmol" class="text-sm font-semibold text-sky-300">252 mmol</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">Correction Rate</span>
+                <span id="res-rate-per-hour" class="text-sm font-semibold text-slate-100">0.50 mmol/L/h</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">Infusion Volume</span>
+                <span id="res-total-ml" class="text-sm font-semibold text-slate-100">504 mL</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">Pump Rate</span>
+                <span id="res-ml-per-hour" class="text-sm font-semibold text-emerald-400 text-base">42 mL/h</span>
+              </div>
+            </div>
+
+            <!-- Adrogue & TBW Details -->
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800 text-[11px] font-mono text-slate-400">
+              <div>Adrogué Expected ΔNa⁺ / L: <span id="res-adrogue-delta" class="text-slate-200">+11.9 mmol/L</span></div>
+              <div>TBW: <span id="res-tbw" class="text-slate-200">42.0 L</span></div>
+            </div>
+
+            <!-- ODS Safe Guardrail Banner -->
+            <div id="box-ods-safe" class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-800 text-xs text-emerald-200 space-y-1">
+              <div class="flex items-center gap-1.5 font-semibold text-emerald-300">
+                <span>✓ Safe Correction Speed (≤ 0.5 mmol/L/hour)</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed">
+                Within maximum neurological safety threshold: 0.5 mmol/L/hour (max 8–10 mmol/L per 24 hours). Protects brain from demyelination.
+              </p>
+            </div>
+
+            <!-- ODS DANGEROUS WARNING (Appears if > 0.5 mmol/L/h) -->
+            <div id="box-ods-warning" class="hidden p-3 rounded-lg bg-rose-950/50 border border-rose-800 text-xs text-rose-200 space-y-1">
+              <div class="flex items-center gap-1.5 font-bold text-rose-300 uppercase tracking-wider">
+                <span>⚠ WARNING: Exceeds Safe Rate (&gt; 0.5 mmol/L/hour)!</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed">
+                <strong class="text-rose-200">Osmotic Demyelination Syndrome (Central Pontine Myelinosis) Risk!</strong> When brain cells adapt to chronic hyponatremia by extruding osmoles, rapid sodium elevation causes violent osmotic brain shrinkage, stripping myelin from the pons and causing irreversible paralysis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 3: POTASSIUM, pH SHIFT & LIVE CARDIAC TELEMETRY ECG       -->
+    <!-- ============================================================= -->
+    <div id="panel-potassium" class="tab-content-panel space-y-5 hidden">
+      
+      <!-- Top Grid: Interactive Sliders (5 cols) + Real-time Canvas ECG (7 cols) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- LEFT: Electrolyte & pH Controls (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="clean-panel p-4 space-y-3">
+            <div class="border-b border-slate-800 pb-2">
+              <h2 class="text-xs font-semibold text-slate-100">Serum Potassium &amp; Shift Sliders</h2>
+              <p class="text-[11px] text-slate-400">Slide pH to see the 0.4 mmol/L shift rule in action (K⁺ moves opposite to pH).</p>
+            </div>
+
+            <!-- Potassium Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Serum Potassium [K⁺]</span>
+                <span class="font-mono font-medium text-slate-200"><span id="val-k">4.2</span> mmol/L</span>
+              </div>
+              <input type="range" id="slider-k" min="1.8" max="8.0" step="0.1" value="4.2">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>&lt; 2.5 (Severe Hypo)</span>
+                <span class="text-slate-400">3.5 – 5.1 (Normal)</span>
+                <span>&gt; 6.5 (Severe Hyper)</span>
+              </div>
+            </div>
+
+            <!-- Arterial pH Slider -->
+            <div class="space-y-1 pt-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Arterial pH (K⁺/H⁺ Shift)</span>
+                <span class="font-mono font-medium text-sky-300" id="val-ph">7.40</span>
+              </div>
+              <input type="range" id="slider-ph" min="7.00" max="7.70" step="0.01" value="7.40">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>7.00 (Acidosis ➔ K⁺ rises)</span>
+                <span>7.40</span>
+                <span>7.70 (Alkalosis ➔ K⁺ drops)</span>
+              </div>
+            </div>
+
+            <!-- Shift Rule Live Readout -->
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono space-y-1">
+              <div class="text-slate-400">0.4 Shift Rule:</div>
+              <div class="text-slate-200">
+                ΔK⁺ from pH shift: <span id="calc-delta-k" class="text-sky-300">0.00</span> mmol/L 
+                (Expected [K⁺]: <span id="calc-expected-k" class="font-bold text-slate-100">4.20</span>)
+              </div>
+            </div>
+
+            <!-- Magnesium Slider (ROMK interaction) -->
+            <div class="space-y-1 pt-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Serum Magnesium [Mg²⁺]</span>
+                <span class="font-mono font-medium text-slate-200"><span id="val-mg">0.85</span> mmol/L</span>
+              </div>
+              <input type="range" id="slider-mg" min="0.30" max="1.50" step="0.05" value="0.85">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>&lt; 0.66 (HypoMg)</span>
+                <span class="text-slate-400">0.66 – 1.07 (Normal)</span>
+                <span>&gt; 1.07</span>
+              </div>
+              <div class="pt-1 flex items-center justify-between text-[11px]">
+                <span class="text-slate-400">ROMK Status:</span>
+                <span id="badge-romk-status" class="px-2 py-0.5 rounded text-xs font-mono text-teal-300 bg-teal-950/60 border border-teal-800">
+                  Normal ROMK inhibition
+                </span>
+              </div>
+            </div>
+
+            <!-- Calcium Slider (QT interaction) -->
+            <div class="space-y-1 pt-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Serum Calcium [Ca²⁺]</span>
+                <span class="font-mono font-medium text-slate-200"><span id="val-ca">2.35</span> mmol/L</span>
+              </div>
+              <input type="range" id="slider-ca" min="1.50" max="3.50" step="0.05" value="2.35">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>&lt; 2.15 (Long QT)</span>
+                <span class="text-slate-400">2.15 – 2.55</span>
+                <span>&gt; 2.55 (Short QT)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Live Canvas ECG Monitor (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="clean-panel p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-semibold text-slate-200 font-mono">LEAD II CARDIAC TELEMETRY</span>
+              </div>
+              <span class="text-[10px] text-slate-500 font-mono">25 mm/s • 10 mm/mV</span>
+            </div>
+
+            <!-- Telemetry Canvas Screen -->
+            <div class="relative w-full h-56 rounded-lg overflow-hidden border border-slate-800">
+              <canvas id="canvas-ecg-monitor" class="w-full h-full block"></canvas>
+            </div>
+
+            <!-- Waveform Morphologic Readouts -->
+            <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">T-Wave</span>
+                <span id="ecg-twave" class="text-slate-200 font-medium text-[11px]">Normal upright</span>
+              </div>
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">U-Wave</span>
+                <span id="ecg-uwave" class="text-sky-300 font-medium text-[11px]">Absent</span>
+              </div>
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800 space-y-0.5">
+                <span class="text-[10px] text-slate-500 block">QT / QU Interval</span>
+                <span id="ecg-qt" class="text-slate-200 font-medium text-[11px]">Normal</span>
+              </div>
+            </div>
+
+            <!-- Arrhythmia Risk Badge -->
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-400 font-mono">Arrhythmia Risk:</span>
+              <span id="ecg-risk" class="font-semibold text-slate-200">Low Risk</span>
+            </div>
+
+            <!-- Emergency Treatment Callout (Appears in severe hypo/hyper) -->
+            <div id="box-ecg-emergency" class="hidden p-3 rounded-lg bg-rose-950/40 border border-rose-800 text-xs text-rose-200 space-y-1">
+              <div class="font-bold text-rose-300 uppercase font-mono tracking-wider">Emergency Medical Action Required</div>
+              <p id="ecg-emergency" class="text-slate-300 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 4: MASTER ALL ELECTROLYTES EXPLORER                       -->
+    <!-- ============================================================= -->
+    <div id="panel-all-electrolytes" class="tab-content-panel space-y-5 hidden">
+      <div class="clean-panel p-4 space-y-1">
+        <h2 class="text-sm font-semibold text-slate-100">Master Electrolytes Clinical Knowledge Base</h2>
+      </div>
+
+      <!-- 6 Electrolyte Cards Grid (Deeply explained for beginners) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- 1. Sodium -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-amber-500/40 border-t-2 border-t-amber-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-amber-950/40 border border-amber-600/40 text-amber-300">Na⁺</span>
+              <h3 class="text-sm font-semibold text-slate-100">Sodium</h3>
+            </div>
+            <span class="text-xs font-mono text-amber-400 font-medium">135 – 145 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Body's Water Magnet &amp; Osmotic Anchor:</strong> 90% of sodium stays outside cells. Where sodium goes, water follows. High or low sodium levels almost NEVER mean you ate too much or too little salt—they tell you whether your blood has too little or too much <em>water</em>!
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">How the Body Controls It</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                When blood gets 1% too concentrated, the brain triggers thirst and releases ADH (Vasopressin). ADH acts like a valve in the kidney collecting duct, saving free water into the blood to dilute sodium back to normal.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hyponatremia (&lt; 135)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Water excess dilutes sodium (SIADH, excessive hypotonic fluids, heart failure).<br>
+                  <strong>Danger:</strong> Water rushes into brain cells, causing swelling (cerebral edema), seizures, coma.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypernatremia (&gt; 145)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Pure water loss without replacement (fever, sweating, lack of water access in elderly).<br>
+                  <strong>Danger:</strong> Brain cells shrink, pulling away from the skull and risking vascular tears.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">Golden Exam Rule:</strong> Never correct chronic hyponatremia faster than <strong>0.5 mmol/L/hour</strong> (max 8–10 mmol/L in 24h)! Rapid elevation causes irreversible Osmotic Demyelination Syndrome (paralysis).
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Potassium -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-violet-500/40 border-t-2 border-t-violet-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-violet-950/40 border border-violet-600/40 text-violet-300">K⁺</span>
+              <h3 class="text-sm font-semibold text-slate-100">Potassium</h3>
+            </div>
+            <span class="text-xs font-mono text-violet-400 font-medium">3.5 – 5.1 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Electrical Battery of Every Muscle &amp; Heart Cell:</strong> 98% of potassium lives <em>inside</em> cells. It sets the baseline resting electrical voltage (-90 mV) of cardiac and skeletal muscles. Even tiny changes in blood potassium distort the heart's rhythm!
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">The 0.4 pH Shift Rule</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                For every <strong>0.1 unit rise in arterial pH</strong> (alkalosis), blood potassium drops by <strong>0.4 mmol/L</strong> as K⁺ shifts into cells. In acidosis (pH drops), K⁺ shifts out of cells into the bloodstream.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypokalemia (&lt; 3.5)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Diuretics (Loops/Thiazides), vomiting, diarrhea, insulin.<br>
+                  <strong>ECG &amp; Signs:</strong> Muscle cramps, weakness, flattened T-waves, prominent U-waves, long QU, Torsades de Pointes.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hyperkalemia (&gt; 5.1)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Kidney failure, ACE inhibitors, tissue crush/burns, acidosis.<br>
+                  <strong>ECG &amp; Signs:</strong> Tall peaked "tented" T-waves, wide QRS, and lethal cardiac arrest.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">Golden Exam Rule:</strong> Never give potassium citrate in vomiting/alkalosis (citrate turns into base; use KCl!). And always check Magnesium: low Mg leaves ROMK wide open, leaking potassium into urine!
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Calcium -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-emerald-500/40 border-t-2 border-t-emerald-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-emerald-950/40 border border-emerald-600/40 text-emerald-300">Ca²⁺</span>
+              <h3 class="text-sm font-semibold text-slate-100">Calcium</h3>
+            </div>
+            <span class="text-xs font-mono text-emerald-400 font-medium">2.15 – 2.55 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Electrical Blanket on Nerve Membranes &amp; Bone Matrix:</strong> 99% is stored in bones and teeth. In the bloodstream, extracellular calcium coats nerve membranes. When calcium is low, nerves become hyperexcitable and twitch; when calcium is high, nerves become numb and sluggish.
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">Albumin Correction Formula</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                40–45% of calcium is bound to albumin. If albumin is low (e.g. malnutrition, liver disease), measured total calcium appears falsely low. Corrected Ca = <span class="font-mono text-slate-200">Measured Ca + 0.02 · (40 - Albumin)</span>.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypocalcemia (&lt; 2.15)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Hypoparathyroidism, Vitamin D deficiency, acute pancreatitis, Loop diuretics.<br>
+                  <strong>Signs:</strong> Tetany, facial twitching (Chvostek), hand spasm (Trousseau), long QT interval.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypercalcemia (&gt; 2.55)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> 90% is Primary Hyperparathyroidism or Cancer metastases.<br>
+                  <strong>Signs:</strong> "Stones, bones, groans, psychiatric overtones", thirst, constipation, short QT.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">Diuretic Calcium Rule:</strong> "LOOPS LOSE CALCIUM" (used to treat hypercalcemia); "THIAZIDES SAVE CALCIUM" (reduces urine calcium by 40%, used for kidney stones, contraindicated in hypercalcemia!).
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Magnesium -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-sky-500/40 border-t-2 border-t-sky-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-sky-950/40 border border-sky-600/40 text-sky-300">Mg²⁺</span>
+              <h3 class="text-sm font-semibold text-slate-100">Magnesium</h3>
+            </div>
+            <span class="text-xs font-mono text-sky-400 font-medium">0.66 – 1.07 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Spark Plug &amp; Potassium Gatekeeper:</strong> Essential cofactor in over 300 enzyme reactions involving ATP. In the kidney, magnesium acts as a physical plug inside the ROMK channel pore. If magnesium is missing, the plug falls out, and potassium pours into the urine uncontrollably!
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">Why Low Magnesium Causes Hypocalcemia Too</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                Parathyroid glands need magnesium to manufacture and release PTH. Severe hypomagnesemia blunts PTH release, causing simultaneous hypocalcemia that won't respond until magnesium is replaced!
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypomagnesemia (&lt; 0.66)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Chronic PPI use (blocks gut uptake), alcohol use, diarrhea, Carboplatin (occurs in 29–43%!).<br>
+                  <strong>Signs:</strong> Tremors, hyperreflexia, refractory hypokalemia, Torsades de Pointes.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypermagnesemia (&gt; 1.07)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Excessive magnesium infusion (pre-eclampsia treatment) in renal impairment.<br>
+                  <strong>Signs:</strong> Loss of deep tendon reflexes (early warning sign), bradycardia, respiratory arrest.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">Refractory Hypokalemia Trap:</strong> If giving potassium doesn't raise blood potassium, stop and check magnesium! You cannot fix hypokalemia until magnesium is restored to plug the ROMK channel.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Phosphate -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-indigo-500/40 border-t-2 border-t-indigo-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-indigo-950/40 border border-indigo-600/40 text-indigo-300">PO₄³⁻</span>
+              <h3 class="text-sm font-semibold text-slate-100">Phosphate</h3>
+            </div>
+            <span class="text-xs font-mono text-indigo-400 font-medium">0.81 – 1.45 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Cellular Battery (ATP) &amp; Oxygen Delivery Key:</strong> Phosphate is the literal "P" in ATP (cellular energy currency). It also forms 2,3-DPG inside red blood cells, which commands hemoglobin to release oxygen to tissues. When phosphate crashes, cells run completely out of fuel!
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">Refeeding Syndrome Mechanism</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                When a malnourished or starving patient is suddenly fed carbohydrates, a massive insulin surge drives phosphate, potassium, and magnesium into cells to metabolize glucose. Blood phosphate crashes (&lt; 0.3 mmol/L), paralyzing the diaphragm!
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypophosphatemia (&lt; 0.81)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Refeeding syndrome, severe DKA treatment, chronic alcohol misuse.<br>
+                  <strong>Signs:</strong> Diaphragmatic weakness (cannot wean off ventilator), rhabdomyolysis, hemolysis.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hyperphosphatemia (&gt; 1.45)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Chronic kidney disease (kidneys cannot excrete PO₄³⁻), tumor lysis.<br>
+                  <strong>Signs:</strong> Precipitates with calcium, causing metastatic calcification in arteries and severe skin itching.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">Refeeding Exam Pearl:</strong> In anorexia, starvation, or prolonged fasting: "Start low, go slow" with calories, and proactively replace phosphate, potassium, and magnesium before escalating nutrition.
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Chloride -->
+        <div class="clean-panel p-4 space-y-3 border border-slate-800/80 hover:border-rose-500/40 border-t-2 border-t-rose-500/70 transition-colors">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-rose-950/40 border border-rose-600/40 text-rose-300">Cl⁻</span>
+              <h3 class="text-sm font-semibold text-slate-100">Chloride</h3>
+            </div>
+            <span class="text-xs font-mono text-rose-400 font-medium">98 – 107 mmol/L</span>
+          </div>
+
+          <div class="clean-panel-subtle p-3 rounded-lg space-y-1">
+            <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Everyday Analogy &amp; Core Role</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>The Electrical Seesaw Partner to Bicarbonate:</strong> Chloride is the most abundant negative ion (anion) in extracellular fluid. Because the body must maintain electrical neutrality, Chloride and Bicarbonate act as partners on a seesaw: when Bicarbonate goes up (vomiting alkalosis), Chloride must go down!
+            </p>
+          </div>
+
+          <div class="text-xs text-slate-300 space-y-2.5">
+            <div>
+              <span class="font-semibold text-slate-300 block text-[11px] uppercase tracking-wider font-mono">Saline-Responsive Metabolic Alkalosis</span>
+              <p class="text-slate-400 mt-0.5 leading-relaxed text-xs">
+                Vomiting expels gastric HCl. To maintain volume and charge, the kidneys are trapped and cannot excrete excess bicarbonate into urine without chloride. Giving 0.9% NaCl provides chloride, curing the alkalosis.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hypochloremia (&lt; 98)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Vomiting, NG tube suction, Loop or Thiazide diuretics.<br>
+                  <strong>Sign:</strong> Urine Cl⁻ &lt; 20 mmol/L confirms saline-responsive metabolic alkalosis.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-1">
+                <span class="text-slate-200 font-semibold block font-mono">Hyperchloremia (&gt; 107)</span>
+                <p class="text-slate-400 font-sans text-xs">
+                  <strong>Why:</strong> Infusing liters of 0.9% "Normal" Saline (contains 154 mmol/L Cl⁻ vs normal blood 102 mmol/L!).<br>
+                  <strong>Sign:</strong> Crowds out bicarbonate, causing Hyperchloremic NAGMA (HARDUPS).
+                </p>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300">
+              <strong class="text-slate-100 font-mono">The 0.9% Saline Irony:</strong> "Normal" Saline is not normal! Its chloride concentration is 154 mmol/L (50% higher than blood). Large infusions produce iatrogenic hyperchloremic metabolic acidosis.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 5: EXAM PEARLS (Prof. Luca Gabutti Lecture High-Yields)  -->
+    <!-- ============================================================= -->
+    <div id="panel-pearls" class="tab-content-panel hidden space-y-5">
+
+      <!-- Header & Search / Filter Controls -->
+      <section class="clean-panel p-4 sm:p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-100">High-Yield Exam Pearls &amp; Clinical Syndromes</h1>
+          </div>
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <span id="pearl-count-badge" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+              Showing 18 of 18 Pearls
+            </span>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="space-y-2">
+          <div class="flex flex-wrap gap-1.5 text-xs font-mono" id="pearl-filter-pills">
+            <button data-pearl-filter="all" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-800 text-slate-100 font-medium transition-colors">
+              All (18)
+            </button>
+            <button data-pearl-filter="diuretics" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors">
+              Diuretics &amp; Drugs (6)
+            </button>
+            <button data-pearl-filter="potassium" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors">
+              Potassium &amp; Shifts (4)
+            </button>
+            <button data-pearl-filter="hypertension" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors">
+              Hypertension &amp; Endocrine (3)
+            </button>
+            <button data-pearl-filter="ckd" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors">
+              Kidney &amp; CKD (4)
+            </button>
+            <button data-pearl-filter="hyponatremia" class="pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors">
+              Hyponatremia &amp; SIADH (3)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section I: Pharmacology, Diuretics & CKD Therapeutics -->
+      <div class="space-y-3" id="section-pearls-part1">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400 border-b border-slate-800/60 pb-1.5">
+          <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+          <span class="font-bold text-slate-200">PART I: Pharmacology, Diuretics &amp; CKD Therapeutics</span>
+          
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Pearl 1 (Highlighted on slide) -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics potassium" data-keywords="thiazide hypokalemia hypomagnesemia hypercalcemia ncc calcium potassium magnesium">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">DIURETICS · IONS</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Thiazide diuretics can induce hypokalemia, hypomagnesemia and (low grade) hypercalcemia”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>HypoK &amp; HypoMg:</strong> Thiazides block the <strong>NCC</strong> cotransporter in the DCT. This dumps massive Na⁺ and fluid into the Collecting Duct. There, <strong>ENaC</strong> rapidly reabsorbs Na⁺, generating an intense lumen-negative electrical gradient (-15 to -30 mV) that pulls positively charged K⁺ (ROMK) and Mg²⁺ out into the urine.<br>
+                  <strong>Hypercalcemia:</strong> Intracellular Na⁺ drops in DCT cells, speeding up the basolateral Na⁺/Ca²⁺ exchanger (NCX1). This pulls Ca²⁺ into the blood via apical TRPV5 channels.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Vignette &amp; Key Clue</span>
+                <p class="text-slate-400">
+                  <strong class="text-slate-200">Loops LOSE Calcium; Thiazides SAVE Calcium.</strong> If a patient on a diuretic has elevated serum calcium (&gt; 2.6 mmol/L), suspect thiazide therapy or unmasked primary hyperparathyroidism.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Target: NCC in DCT</span>
+              <button onclick="ElectrolyteApp.switchTab('nephron'); ElectrolyteApp.applyDiuretic('thiazide');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Test in Nephron →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 2 (Highlighted on slide) -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics hyponatremia" data-keywords="thiazide severe hyponatremia dilution distal tubule water ncc adh">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">DIURETICS · WATER</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Thiazide diuretics can induce severe hyponatremia (impairment of urinary dilution due to reduced sodium reabsorption in distal tubule)”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  The Distal Convoluted Tubule is the kidney's <strong>"Cortical Diluting Segment"</strong>: it is completely impermeable to water. Normally, removing salt without water dilutes urine down to 50 mOsm/kg. Thiazides block NCC, directly preventing urine dilution! Simultaneously, mild volume depletion triggers pituitary ADH release, reabsorbing pure water in the collecting duct.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Vignette &amp; Key Clue</span>
+                <p class="text-slate-400">
+                  <strong class="text-slate-200">Why not Loop diuretics?</strong> Loops destroy the medullary gradient, so ADH cannot concentrate urine. Thiazides spare the medulla: ADH works at 100% while DCT dilution is disabled, producing catastrophic hyponatremia (e.g. Na⁺ = 114 mmol/L in elderly women).
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Mechanism: Loss of dilution</span>
+              <button onclick="ElectrolyteApp.switchTab('hyponatremia');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Open Na⁺ Algorithm →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 3 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics" data-keywords="thiazide hyperuricemia gout urat1 oat uric acid podagra">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">DIURETICS · METABOLIC</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Thiazide diuretics can induce hyperuricemia and gout”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Two distinct mechanisms raise uric acid:
+                  <strong>1) Increased proximal reabsorption:</strong> Mild volume depletion stimulates proximal tubule fluid reabsorption via URAT1, dragging uric acid into blood.
+                  <strong>2) Secretory competition:</strong> Thiazide molecules compete with uric acid for basolateral Organic Anion Transporters (OAT1/OAT3), directly impairing uric acid secretion.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Vignette &amp; Key Clue</span>
+                <p class="text-slate-400">
+                  A hypertensive patient develops an acute hot, red, swollen first toe (podagra) 3 weeks after starting HCTZ. <strong>Management:</strong> Treat acute attack (colchicine/NSAIDs), stop thiazide, and switch to <strong>Losartan</strong> (an ARB that uniquely inhibits URAT1 to lower uric acid!).
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Clue: URAT1 &amp; OAT</span>
+              <span class="text-slate-400 font-mono">Switch to Losartan</span>
+            </div>
+          </div>
+
+          <!-- Pearl 4 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics hypertension" data-keywords="calcium antagonists leg edema capillary hydrostatic amlodipine ccb precapillary postcapillary">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">PHARMACOLOGY · VASCULAR</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Calcium antagonists can induce leg edema (increased capillary hydrostatic pressure from greater vasodilation of pre-capillary than post-capillary vessels)”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Dihydropyridines (Amlodipine, Nifedipine) selectively dilate <strong>pre-capillary arterioles</strong> while leaving post-capillary venules unchanged. High arterial pressure transmits straight into fragile capillaries (elevated P<sub>c</sub> ↑), forcing plasma transudate into interstitial tissue.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Trap: Avoid Diuretics</span>
+                <p class="text-slate-400">
+                  <strong class="text-slate-200">This is NOT fluid overload!</strong> Total body sodium is normal. Giving Furosemide causes pre-renal azotemia, hypotension, and reflex tachycardia. <strong>Correct Action:</strong> Lower CCB dose or add an <strong>ACEi/ARB</strong> (which dilates post-capillary venules, restoring balanced microvascular pressure).
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Mechanism: P<sub>c</sub> Transudation</span>
+              <span class="text-slate-400 font-mono">Fix: Add ACEi / ARB</span>
+            </div>
+          </div>
+
+          <!-- Pearl 5 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics potassium" data-keywords="ace inhibitors sartans renin aldosterone hyperkalemia raas enalapril losartan spironolactone">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">RAAS · POTASSIUM</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “ACE inhibitors, sartans, renin inhibitors and aldosterone inhibitors can induce hyperkalemia”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Aldosterone is the kidney's master switch for potassium excretion. By activating ENaC and basolateral Na⁺/K⁺-ATPases in principal cells, it creates the negative charge that propels K⁺ through ROMK channels. Blocking the RAAS anywhere (renin → ACE → AT₁ receptor → MR) eliminates aldosterone signaling, shutting down K⁺ excretion.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Vignette &amp; Key Clue</span>
+                <p class="text-slate-400">
+                  Greatest danger in CKD, diabetes (hyporeninemic hypoaldosteronism / Type IV RTA), and concurrent NSAID use. Always measure serum K⁺ and creatinine within 1–2 weeks of starting or increasing RAAS blockers.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Target: Principal cell ENaC/ROMK</span>
+              <button onclick="ElectrolyteApp.switchTab('potassium');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Check K⁺ ECG →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 6 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-amber-500/70" data-category="diuretics potassium" data-keywords="ipp ppi hypomagnesemia hypokalemia hypocalcemia omeprazole pantoprazole trpm6 romk">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/50 text-amber-300 font-semibold">DRUGS · MULTI-ION</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-amber-950/15 border border-amber-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “IPP can induce severe hypomagnesemia (with hypokalemia and hypocalcemia)”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Chronic Proton Pump Inhibitor therapy (&gt; 3–12 months) raises colonic luminal pH, disabling the pH-sensitive <strong>TRPM6</strong> magnesium channel in the bowel.<br>
+                  • <strong>Why Hypokalemia?</strong> Intracellular Mg²⁺ is the physical "cork" blocking ROMK. Without Mg, ROMK stays wide open, dumping potassium.<br>
+                  • <strong>Why Hypocalcemia?</strong> Low Mg cripples adenylate cyclase in parathyroid cells, causing <strong>PTH gland failure &amp; end-organ PTH resistance</strong>.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Vignette &amp; Key Clue</span>
+                <p class="text-slate-400">
+                  Patient on chronic Pantoprazole presents with tetany (Chvostek/Trousseau sign), low calcium, low potassium, and low/normal PTH. <strong>You cannot correct K⁺ until you replace Mg²⁺!</strong> Stop the PPI and give IV magnesium sulfate.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Triad: Low Mg + Low K + Low Ca</span>
+              <button onclick="ElectrolyteApp.switchTab('all-electrolytes');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">View Mg Guide →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 7 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-sky-500/70" data-category="ckd" data-keywords="ckd acidosis bicarbonate renal prognosis catabolism bone loss nagma gfr">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/40 border border-sky-800/50 text-sky-300 font-semibold">CKD · ACID-BASE</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-sky-950/15 border border-sky-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “CKD induced acidosis has to be treated with bicarbonate (to improve renal prognosis, decrease protein catabolism, and prevent bone loss)”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Professor's 3 Pillars for Bicarbonate</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>1) Improve Renal Prognosis:</strong> Surviving nephrons produce excess endothelin &amp; complement to excrete acid, driving interstitial fibrosis and faster GFR loss.<br>
+                  <strong>2) Decrease Protein Catabolism:</strong> Acidemia activates the ATP-dependent ubiquitin-proteasome pathway, causing uremic muscle wasting.<br>
+                  <strong>3) Prevent Bone Loss:</strong> Acid is buffered by bone carbonate/phosphate, accelerating renal osteodystrophy.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Action &amp; Target</span>
+                <p class="text-slate-400">
+                  Prescribe oral Sodium Bicarbonate (NaHCO₃, 500 mg–1 g TID) or Sodium Citrate to maintain serum bicarbonate strictly between <strong>22 and 26 mmol/L</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Target: HCO₃⁻ ≥ 22 mmol/L</span>
+              <span class="text-slate-400 font-mono">Oral NaHCO₃</span>
+            </div>
+          </div>
+
+          <!-- Pearl 8 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-sky-500/70" data-category="ckd" data-keywords="ckd anemia intravenous iron erythropoietin tsat ferritin hepcidin epo">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/40 border border-sky-800/50 text-sky-300 font-semibold">CKD · HEMATOLOGY</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-sky-950/15 border border-sky-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “CKD associated anemia (if TSAT &le; 30% and Ferritin &le; 500 ng/mL) has to be treated with intravenous iron before giving erythropoietin”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Uremia causes systemic inflammation, elevating <strong>Hepcidin</strong>. Hepcidin destroys Ferroportin, locking iron inside macrophages (<strong>Functional Iron Deficiency</strong>). Giving Erythropoietin (EPO) without adequate bioavailable iron causes bone marrow resistance and fails to raise hemoglobin!
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Exam Numbers to Memorize</span>
+                <p class="text-slate-400">
+                  Give IV iron if <strong>TSAT ≤ 30%</strong> and <strong>Ferritin ≤ 500 ng/mL</strong>. Only once iron stores are loaded, initiate ESA (Darbepoetin/EPO) targeting Hb 10–11.5 g/dL (never $>13$ due to stroke risk).
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Cutoffs: TSAT &le; 30%, Ferritin &le; 500</span>
+              <span class="text-slate-400 font-mono">IV Iron FIRST</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section II: Diagnostic Syndromes, Renovascular & Endocrine Pearls -->
+      <div class="space-y-3 pt-2" id="section-pearls-part2">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400 border-b border-slate-800/60 pb-1.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span class="font-bold text-slate-200">PART II: Diagnostic Syndromes, Renovascular &amp; Endocrine Pearls</span>
+          
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Pearl 9 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-emerald-500/70" data-category="hypertension potassium" data-keywords="hypertension hypokalemia aldosterone mineralocorticoid conn hyperaldosteronism arr renin">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 font-semibold">ENDOCRINE · HTN</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-emerald-950/15 border border-emerald-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Hypertension + hypokalemia &rarr; suspect a mineralocorticoid (aldosterone) excess”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Primary Hyperaldosteronism (Conn Syndrome / Adrenal Hyperplasia):</strong> Autonomous aldosterone hypersecretion forces principal cells to reabsorb excess Na⁺ through ENaC (causing hypertension) while dumping K⁺ via ROMK (hypokalemia) and H⁺ via α-intercalated cells (metabolic alkalosis).
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Diagnostic Workup</span>
+                <p class="text-slate-400">
+                  Measure the <strong>Aldosterone-to-Renin Ratio (ARR)</strong>: high aldosterone + suppressed renin (PRA &lt; 1.0) yields a ratio $>20–30$. Confirm with Saline Infusion or Oral Salt Loading test.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Clue: High ARR (Aldo &uarr; / Renin &darr;)</span>
+              <span class="text-slate-400 font-mono">Conn Syndrome</span>
+            </div>
+          </div>
+
+          <!-- Pearl 10 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-emerald-500/70" data-category="hypertension potassium" data-keywords="hypertension hypokalemia hyperglycemia cortisol cushing glucocorticoid 11b-hsd2 acth">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 font-semibold">ENDOCRINE · CUSHING</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-emerald-950/15 border border-emerald-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Hypertension + hypokalemia + hyperglycemia &rarr; suspect a glucocorticoid (cortisol) excess”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Cushing Syndrome:</strong> Cortisol causes gluconeogenesis and insulin resistance (hyperglycemia). In massive excess (or ectopic ACTH), cortisol saturates the protective renal enzyme <strong>11β-HSD2</strong>, allowing cortisol to bind directly to Mineralocorticoid Receptors with equal potency to aldosterone (hypertension + severe hypokalemia!).
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Diagnostic Triad to Recognize</span>
+                <p class="text-slate-400">
+                  HTN + Low K⁺ + High Glucose = Cushing! Confirm with 24h urinary free cortisol, late-night salivary cortisol, or 1 mg overnight Dexamethasone test.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Mechanism: 11β-HSD2 saturation</span>
+              <span class="text-slate-400 font-mono">Cushing Syndrome</span>
+            </div>
+          </div>
+
+          <!-- Pearl 11 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-emerald-500/70" data-category="hypertension" data-keywords="resistant hypertension young subject duplex ultrasound kidney arteries stenosis fmd renovascular">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 font-semibold">RENOVASCULAR · IMAGING</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-emerald-950/15 border border-emerald-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Resistant hypertension in a young subject (persistent hypertension despite 3 medications including a diuretic); perform a duplex ultrasound of kidney arteries to rule out stenosis”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Fibromuscular Dysplasia (FMD):</strong> In young patients (especially females $<35$), medial fibroplasia creates "string-of-beads" stenoses. Renal underperfusion triggers relentless renin secretion (Goldblatt kidney), causing severe renovascular hypertension refractory to triple-therapy.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Diagnostic Criteria &amp; Imaging</span>
+                <p class="text-slate-400">
+                  Resistant HTN = BP above goal despite ≥ 3 drugs at optimal doses (one MUST be a diuretic). <strong>First imaging test:</strong> Renal Artery Duplex Ultrasound.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Young = FMD; Elderly = Atherosclerosis</span>
+              <span class="text-slate-400 font-mono">Duplex Ultrasound</span>
+            </div>
+          </div>
+
+          <!-- Pearl 12 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-sky-500/70" data-category="ckd" data-keywords="reduced gfr proteinuria microhematuria hypertension glomerular disease nephritic rbc casts">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/40 border border-sky-800/50 text-sky-300 font-semibold">GLOMERULUS · NEPHRITIC</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-sky-950/15 border border-sky-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Reduced GFR + proteinuria + microhematuria + hypertension &rarr; suspect a glomerular disease”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Nephritic Syndrome:</strong> Glomerular capillary inflammation causes basement membrane breaks. Red blood cells squeeze through and get deformed into <strong>dysmorphic acanthocytes</strong> and diagnostic <strong>RBC casts</strong>. Reduced glomerular surface area lowers GFR, while impaired sodium excretion produces hypertension and edema.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Action &amp; Diagnosis</span>
+                <p class="text-slate-400">
+                  Perform fresh urine sediment microscopy (look for dysmorphic RBCs &gt; 40% and red cell casts) and urgently arrange a <strong>percutaneous renal biopsy</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Hallmark: Dysmorphic RBCs &amp; RBC Casts</span>
+              <span class="text-slate-400 font-mono">Renal Biopsy</span>
+            </div>
+          </div>
+
+          <!-- Pearl 13 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-sky-500/70" data-category="ckd" data-keywords="iga nephropathy berger most frequent glomerulonephritis adults synpharyngitic hematuria upper respiratory">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/40 border border-sky-800/50 text-sky-300 font-semibold">GLOMERULUS · IGA</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-sky-950/15 border border-sky-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “IgA nephropathy is the most frequent glomerulonephritis in adults”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Berger Disease:</strong> Abnormal galactose-deficient IgA1 forms circulating immune complexes that deposit directly in the glomerular <strong>mesangium</strong>, triggering mesangioproliferative inflammation and glomerulosclerosis.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Key Differential: IgA vs. PSGN</span>
+                <p class="text-slate-400">
+                  <strong class="text-slate-200">IgA vs PSGN Timing:</strong> IgA causes macroscopic tea-colored hematuria <strong>1–2 days</strong> after a cold (synpharyngitic) with <strong>normal C3</strong>. PSGN occurs <strong>1–3 weeks</strong> after infection and has <strong>low C3</strong>!
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Onset: 1–2 days after URI (Normal C3)</span>
+              <span class="text-slate-400 font-mono">Mesangial IgA</span>
+            </div>
+          </div>
+
+          <!-- Pearl 14 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-sky-500/70" data-category="ckd" data-keywords="prevent progression ckd ace inhibitors sartans sglt2 inhibitors efferent afferent arteriole">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950/40 border border-sky-800/50 text-sky-300 font-semibold">CKD · NEPHROPROTECTION</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-sky-950/15 border border-sky-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “To prevent progression of CKD, prescribe ACE inhibitors or sartans, and/or glucose tubular reuptake (SGLT2) inhibitors”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Intraglomerular hypertension destroys remaining nephrons.
+                  • <strong>ACEi / ARBs:</strong> Dilate the <strong>efferent arteriole</strong> (outflow), relieving intraglomerular pressure.<br>
+                  • <strong>SGLT2i (Dapagliflozin):</strong> Delivers Na⁺ to macula densa, restoring tubuloglomerular feedback to constrict the <strong>afferent arteriole</strong> (inflow). Together they halt proteinuria and glomerulosclerosis!
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Clue: Expected eGFR Dip</span>
+                <p class="text-slate-400">
+                  Starting either drug causes an expected, hemodynamically benign eGFR drop (up to 30%). Do NOT discontinue the drug; it confirms successful pressure relief!
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Efferent Dilation + Afferent Constriction</span>
+              <button onclick="ElectrolyteApp.switchTab('nephron'); ElectrolyteApp.applyDiuretic('sglt2i');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Test SGLT2i →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 15 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-violet-500/70" data-category="potassium" data-keywords="correct hypokalemia before insulin dka hhs na-k-atpase ventricular arrhythmia cardiac arrest">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-950/40 border border-violet-800/50 text-violet-300 font-semibold">POTASSIUM · EMERGENCY</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-violet-950/15 border border-violet-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Correct hypokalemia before giving insulin”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Insulin is the most potent activator of cellular <strong>Na⁺/K⁺-ATPase</strong>, pumping extracellular K⁺ into cells within minutes. In DKA or HHS, total-body potassium is depleted. If serum K⁺ &lt; 3.3 mmol/L, infusing insulin drives potassium into cells, precipitating sudden <strong>fatal ventricular arrhythmias or respiratory arrest</strong>!
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Emergency Protocol</span>
+                <p class="text-slate-400">
+                  If K⁺ &lt; 3.3 mmol/L, <strong>HOLD INSULIN</strong>. Give IV KCl (20–30 mEq/h) until K⁺ ≥ 3.3. Only then start insulin with continuous potassium co-infusion.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Cutoff: Never give insulin if K⁺ &lt; 3.3</span>
+              <button onclick="ElectrolyteApp.switchTab('potassium');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Open K⁺ Tool →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 16 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-violet-500/70" data-category="potassium" data-keywords="potassium shift acidosis mask hypokalemia ph delta k 0.4 per 0.1">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-950/40 border border-violet-800/50 text-violet-300 font-semibold">POTASSIUM · SHIFTS</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-violet-950/15 border border-violet-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Consider potassium shift when deciding about potassium substitution (cave: acidosis can mask hypokalemia)”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>Transcellular Shift Rule:</strong> In metabolic acidosis, excess H⁺ enters cells to be buffered by intracellular proteins; to maintain electrical neutrality, intracellular K⁺ is displaced into the bloodstream.<br>
+                  <strong>Quantitative Rule:</strong> Every <strong>0.1 drop in pH raises blood K⁺ by ~0.4 mmol/L</strong>.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Clinical Trap: Masked Hypokalemia</span>
+                <p class="text-slate-400">
+                  A patient with severe diarrhea presents with pH = 7.10 and K⁺ = 4.0 mmol/L ("normal"). Corrected for normal pH (7.40), true baseline K⁺ is only <strong>2.8 mmol/L</strong>! Correcting acidosis without potassium will plunge them into severe hypokalemia.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Formula: &Delta;K = 0.4 &times; (7.40 - pH) / 0.1</span>
+              <button onclick="ElectrolyteApp.switchTab('potassium');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Use Shift Slider →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 17 -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-rose-500/70" data-category="hyponatremia" data-keywords="actively correct hyponatremia hypoosmolar osmolality tonicity cerebral edema hypertonic pseudohyponatremia">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/40 border border-rose-800/50 text-rose-300 font-semibold">SODIUM · TONICITY</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-rose-950/15 border border-rose-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Actively correct hyponatremia only if it is hypoosmolar”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Pathophysiology &amp; Mechanism</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  Hyponatremia is only dangerous if it causes brain cell swelling (cerebral edema). Water moves exclusively along <strong>effective osmotic gradients</strong>.<br>
+                  • <strong>Hypertonic (&gt; 295 mOsm/kg):</strong> Severe hyperglycemia (DKA) pulls water OUT of brain cells (cellular dehydration!). Treat with insulin, never saline.<br>
+                  • <strong>Isotonic (280–295 mOsm/kg):</strong> Pseudohyponatremia from lipids/proteins; brain cells are completely unaffected.
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Diagnostic Rule: Check Osmolality First</span>
+                <p class="text-slate-400">
+                  <strong class="text-slate-200">Measure Measured Serum Osmolality First!</strong> Only <strong>Hypotonic Hyponatremia (&lt; 280 mOsm/kg)</strong> causes cerebral edema and requires active sodium correction.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Rule: Step 1 = Serum Osmolality</span>
+              <button onclick="ElectrolyteApp.switchTab('hyponatremia');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Open 3-Step Tree →</button>
+            </div>
+          </div>
+
+          <!-- Pearl 18 (Highlighted on slide) -->
+          <div class="pearl-card clean-panel p-4 space-y-3 border-t-2 border-t-rose-500/70" data-category="hyponatremia" data-keywords="siadh hyponatremia hypoosmolality hyperosmolality urine urinary sodium uric acid">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/40 border border-rose-800/50 text-rose-300 font-semibold">SODIUM · SIADH</span>
+              
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-rose-950/15 border border-rose-900/30 text-xs font-semibold text-slate-100 font-mono">
+              “Hyponatremia + serum hypoosmolality + urinary hyperosmolality + urinary sodium &gt; 20 (40) (+ low uric acid) &rarr; suspect SIADH”
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-300">
+              <div class="clean-panel-subtle p-2.5 rounded space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">Decoding the 4 SIADH Criteria</span>
+                <p class="text-slate-300 leading-relaxed text-[11px]">
+                  <strong>1) Serum Hypoosmolality:</strong> Excess ADH reabsorbs pure water, diluting blood (S<sub>osm</sub> &lt; 275).<br>
+                  <strong>2) Urinary Hyperosmolality (U<sub>osm</sub> &gt; 100):</strong> ADH opens collecting duct aquaporins, improperly concentrating urine during hypoosmolality.<br>
+                  <strong>3) Urinary Na⁺ &gt; 20–40 mmol/L (Euvolemia):</strong> Water retention slightly expands volume, triggering ANP/BNP and shutting down proximal Na⁺ reabsorption.<br>
+                  <strong>4) Low Uric Acid (&lt; 240 µmol/L):</strong> Volume expansion downregulates URAT1, dumping uric acid into urine (high specificity for SIADH!).
+                </p>
+              </div>
+
+              <div class="p-2 rounded bg-slate-900/60 border border-slate-800/80 text-[11px] space-y-1">
+                <span class="font-mono text-slate-400 block font-semibold">Treatment Protocol</span>
+                <p class="text-slate-400">
+                  First-line therapy: <strong>Fluid restriction (&lt; 800–1000 mL/day)</strong>. If severe neurological symptoms (seizures, coma): infuse hypertonic 3% NaCl (100 mL bolus over 10 min) to raise Na⁺ by 4–6 mmol/L.
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500 font-mono">Tetrad: Low S-Osm + High U-Osm + High U-Na + Low Uric</span>
+              <button onclick="ElectrolyteApp.switchTab('hyponatremia');" class="text-sky-400 hover:text-sky-300 font-mono font-medium">Calculate 3% NaCl →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 6: EXAM QUIZ (Directly matches ABGA quiz layout)          -->
+    <!-- ============================================================= -->
+    <div id="panel-quiz" class="tab-content-panel hidden space-y-4">
+      <div class="clean-panel p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div>
+            <span id="quiz-case-counter" class="text-xs text-slate-400 font-mono">Case 1 of 4</span>
+            <h2 id="quiz-case-title" class="text-sm font-semibold text-slate-100 mt-0.5">Clinical Case Vignette</h2>
+          </div>
+          <div id="quiz-score-badge" class="text-xs font-mono text-slate-300 px-2.5 py-1 rounded bg-slate-900 border border-slate-800">
+            Score: 0 / 4
+          </div>
+        </div>
+
+        <!-- Vignette -->
+        <div class="p-3.5 clean-panel-subtle text-xs text-slate-300 leading-relaxed font-mono">
+          <p id="quiz-case-vignette"></p>
+        </div>
+
+        <!-- Question & Options -->
+        <div class="space-y-2">
+          <h3 id="quiz-case-question" class="text-xs font-medium text-slate-200"></h3>
+          <div id="quiz-options-container" class="space-y-1.5"></div>
+        </div>
+
+        <!-- Feedback & Explanation -->
+        <div id="quiz-case-feedback" class="hidden"></div>
+
+        <!-- Navigation Controls -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs">
+          <div class="text-slate-500 text-xs">
+            <span id="quiz-case-category" class="font-mono text-slate-400"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-prev-case" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">Previous</button>
+            <button id="btn-next-case" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/electrolytes-engine.js?v=20261020_03"></script>
+  <script src="js/electrolytes-data.js?v=20261020_03"></script>
+  <script src="js/nephron-svg.js?v=20261020_03"></script>
+  <script src="js/electrolytes-ecg.js?v=20261020_03"></script>
+  <script src="js/electrolytes-app.js?v=20261020_03"></script>
+</body>
+</html>

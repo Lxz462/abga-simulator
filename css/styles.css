@@ -114,6 +114,22 @@ details summary::-webkit-details-marker {
   display: none;
 }
 
+/* Tubular Fluid Flow Animation */
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.flow-anim {
+  animation: dashFlow 1.2s linear infinite;
+}
+
+.channel-node:hover circle[id^="pulse-"] {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
 /* Print Optimization */
 @media print {
   body {

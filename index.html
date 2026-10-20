@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>ArterioGas — Arterial Blood Gas & Acid-Base Physiology</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css?v=20261020_01">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-slate-800">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        <!-- Navigation Segmented Tabs -->
+        <nav class="flex items-center gap-1 bg-slate-900/80 p-0.5 rounded-lg border border-slate-800 text-xs">
+          <button data-tab="simulator" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-200 bg-slate-800">Simulator</button>
+          <button data-tab="algorithm" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">6-Step Algorithm</button>
+          <button data-tab="acronyms" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">GOLD MARK</button>
+          <button data-tab="quiz" class="nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200">Exam Quiz</button>
+        </nav>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3 text-xs">
+          <button id="btn-reset-normal" class="text-slate-400 hover:text-slate-200 transition-colors">Reset</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: INTERACTIVE SIMULATOR               -->
+    <!-- ========================================== -->
+    <div id="panel-simulator" class="tab-content-panel space-y-5">
+
+      <!-- Diagnosis & Key Metrics Summary (Clean, unified card) -->
+      <section class="clean-panel p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Diagnostic Assessment</div>
+            <h1 id="badge-primary-disorder" class="text-base sm:text-lg font-semibold text-slate-100 mt-0.5">
+              Normal Acid-Base Balance
+            </h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badge-ph-status" class="px-2 py-0.5 rounded text-xs text-slate-300 bg-slate-900 border border-slate-800">
+              Normal pH
+            </span>
+            <span id="badge-horovitz" class="px-2 py-0.5 rounded text-xs text-slate-300 bg-slate-900 border border-slate-800">
+              Normal Oxygenation
+            </span>
+            <span id="badge-ag-status" class="px-2 py-0.5 rounded text-xs text-slate-300 bg-slate-900 border border-slate-800">
+              Normal AG
+            </span>
+          </div>
+        </div>
+
+        <!-- Inline Key Lab Numbers -->
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 pt-3 text-xs">
+          <div>
+            <span class="text-slate-400 block text-[11px]">Arterial pH</span>
+            <span id="val-ph-top" class="font-mono font-medium text-slate-200 text-sm">7.40</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">PaCO₂</span>
+            <span class="font-mono font-medium text-slate-200 text-sm"><span id="val-pco2-top">5.3</span> kPa</span>
+            <span class="text-[10px] text-slate-500 font-mono block">(<span id="val-pco2-mmhg-top">40.0</span> mmHg)</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Plasma [HCO₃⁻]</span>
+            <span class="font-mono font-medium text-slate-200 text-sm"><span id="val-hco3-top">24.0</span> mmol/L</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">PaO₂</span>
+            <span class="font-mono font-medium text-slate-200 text-sm"><span id="val-po2-top">12.5</span> kPa</span>
+            <span class="text-[10px] text-slate-500 font-mono block">(<span id="val-po2-mmhg-top">93.8</span> mmHg)</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">P/F Ratio</span>
+            <span class="font-mono font-medium text-slate-200 text-sm"><span id="val-horovitz-kpa">53.3</span> kPa</span>
+            <span class="text-[10px] text-slate-500 font-mono block">(<span id="val-horovitz-mmhg">400</span> mmHg)</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">SaO₂ / AG</span>
+            <span class="font-mono font-medium text-slate-200 text-sm"><span id="val-sao2">98%</span> • <span id="val-anion-gap-top">12.0</span></span>
+            <span class="text-[10px] text-slate-500 font-mono block">mmol/L gap</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clinical Scenario Selector & Auto-derive Switch (Replacing 16 giant cards) -->
+      <section class="flex flex-wrap items-center justify-between gap-3 text-xs bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/80">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-slate-400 font-medium">Scenario:</span>
+          <select id="preset-select" class="clean-select text-xs">
+            <option value="normal">Normal Baseline (Healthy Adult)</option>
+            <optgroup label="Metabolic Acidosis">
+              <option value="dka">Diabetic Ketoacidosis (DKA)</option>
+              <option value="alcohol_aka">Alcoholic Ketoacidosis (AKA)</option>
+              <option value="lactic_acidosis_sepsis">Septic Shock (Lactic Acidosis)</option>
+              <option value="toxic_alcohol_methanol">Methanol Poisoning (Formate)</option>
+              <option value="toxic_alcohol_ethylene_glycol">Ethylene Glycol (Antifreeze)</option>
+              <option value="salicylate_toxicity">Salicylate / Aspirin Overdose</option>
+              <option value="severe_diarrhea">Severe Diarrhea (NAGMA)</option>
+              <option value="normal_saline_overload">0.9% Normal Saline Overload</option>
+            </optgroup>
+            <optgroup label="Biochemical & Enzymatic Lesions">
+              <option value="thiamine_pdh">Vitamin B₁ (Thiamine) Deficiency (PDH Failure)</option>
+              <option value="metformin_complex1">Metformin Toxicity (Complex I Block)</option>
+              <option value="acetazolamide_ca">Acetazolamide (Carbonic Anhydrase Inhibition)</option>
+              <option value="cyanide_complex4">Cyanide Poisoning (Complex IV Arrest)</option>
+              <option value="paracetamol_oxoproline">Glutathione Depletion (5-Oxoprolinuria)</option>
+            </optgroup>
+            <optgroup label="Respiratory Disorders">
+              <option value="hyperventilation_acute">Acute Hyperventilation (Panic / Pain)</option>
+              <option value="copd_acute_on_chronic">COPD Acute-on-Chronic Hypoventilation</option>
+              <option value="opiate_overdose">Acute Opiate / Heroin Overdose</option>
+              <option value="pulmonary_embolism">Acute Pulmonary Embolism (PE)</option>
+              <option value="ards_severe">Severe ARDS (Horovitz &lt; 13.3 kPa)</option>
+            </optgroup>
+            <optgroup label="Metabolic Alkalosis">
+              <option value="severe_vomiting">Severe Vomiting (Pyloric Stenosis)</option>
+            </optgroup>
+            <optgroup label="Mixed Disturbances">
+              <option value="dka_with_vomiting">DKA + Vomiting (Masked Disorder)</option>
+            </optgroup>
+          </select>
+
+          <!-- Quick Shortcuts for the most frequent exam cases -->
+          <div class="hidden sm:flex items-center gap-1.5 ml-2">
+            <button onclick="applyPreset('normal')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors">Normal</button>
+            <button onclick="applyPreset('dka')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors">DKA</button>
+            <button onclick="applyPreset('thiamine_pdh')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 text-[11px] transition-colors" title="Vitamin B1 (Thiamine) deficiency paralyzing Pyruvate Dehydrogenase">B₁ / PDH</button>
+            <button onclick="applyPreset('hyperventilation_acute')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors">Hyperventilation</button>
+            <button onclick="applyPreset('copd_acute_on_chronic')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors">COPD</button>
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300 select-none">
+          <input type="checkbox" id="switch-auto-ph" checked class="w-3.5 h-3.5 rounded bg-slate-800 border-slate-700 text-sky-500 focus:ring-0">
+          <span>Auto-derive pH via Henderson-Hasselbalch</span>
+        </label>
+      </section>
+
+      <!-- Two-Column Focused Workbench -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- LEFT COLUMN: Primary Blood Gas Sliders (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="clean-panel p-4 space-y-4">
+            <div class="text-xs font-semibold text-slate-200 border-b border-slate-800/80 pb-2 flex justify-between items-center">
+              <span>Arterial Blood Gas Values</span>
+              <span class="text-[11px] text-slate-400 font-normal">Primary inputs</span>
+            </div>
+
+            <!-- pH Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Arterial pH</span>
+                <span id="val-ph" class="font-mono font-medium text-slate-200">7.40</span>
+              </div>
+              <input type="range" id="slider-ph" min="6.80" max="7.80" step="0.01" value="7.40">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>6.80</span>
+                <span class="text-slate-400">7.35 – 7.45</span>
+                <span>7.80</span>
+              </div>
+            </div>
+
+            <!-- PaCO2 Slider in kPa -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">PaCO₂</span>
+                <span class="font-mono font-medium text-slate-200">
+                  <span id="val-pco2-kpa">5.3</span> kPa <span class="text-slate-500 text-[11px] font-normal">(<span id="val-pco2-mmhg">40.0</span> mmHg)</span>
+                </span>
+              </div>
+              <input type="range" id="slider-pco2" min="2.0" max="14.0" step="0.1" value="5.33">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>2.0 kPa</span>
+                <span class="text-slate-400">4.7 – 6.0 kPa (35 – 45 mmHg)</span>
+                <span>14.0 kPa</span>
+              </div>
+            </div>
+
+            <!-- Plasma [HCO3-] Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">Plasma [HCO₃⁻]</span>
+                <span class="font-mono font-medium text-slate-200">
+                  <span id="val-hco3">24.0</span> mmol/L
+                </span>
+              </div>
+              <input type="range" id="slider-hco3" min="5.0" max="50.0" step="0.5" value="24.0">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>5.0</span>
+                <span class="text-slate-400">22.0 – 26.0 mmol/L</span>
+                <span>50.0</span>
+              </div>
+            </div>
+
+            <!-- PaO2 Slider in kPa -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">PaO₂</span>
+                <span class="font-mono font-medium text-slate-200">
+                  <span id="val-po2-kpa">12.5</span> kPa <span class="text-slate-500 text-[11px] font-normal">(<span id="val-po2-mmhg">93.8</span> mmHg)</span>
+                </span>
+              </div>
+              <input type="range" id="slider-po2" min="4.0" max="25.0" step="0.1" value="12.5">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>4.0 kPa</span>
+                <span class="text-slate-400">10.0 – 13.3 kPa (75 – 100 mmHg)</span>
+                <span>25.0 kPa</span>
+              </div>
+            </div>
+
+            <!-- FiO2 Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-300 font-medium">FiO₂</span>
+                <span id="val-fio2" class="font-mono font-medium text-slate-200">21% (0.21)</span>
+              </div>
+              <input type="range" id="slider-fio2" min="0.21" max="1.00" step="0.01" value="0.21">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>0.21 (Room Air)</span>
+                <span>0.50</span>
+                <span>1.00</span>
+              </div>
+            </div>
+
+            <!-- Base Excess (cBase / SBE) -->
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+              <span class="text-slate-400">Base Excess (cBase):</span>
+              <span class="font-mono font-semibold text-slate-200"><span id="val-be">0.0</span> mmol/L</span>
+            </div>
+          </div>
+
+          <!-- Secondary Labs Collapsible (Neatly tucked away, only opened when needed) -->
+          <details class="group clean-panel p-3.5 space-y-3">
+            <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-medium text-slate-300 select-none">
+              <span>Additional Labs (Electrolytes, Albumin, Lactate, Temp)</span>
+              <span class="text-slate-500 text-[10px] group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 text-xs">
+              <!-- Na+ -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Na⁺ (mmol/L)</span>
+                  <span id="val-na" class="font-mono text-slate-200">140</span>
+                </div>
+                <input type="range" id="slider-na" min="115" max="165" step="1" value="140">
+              </div>
+
+              <!-- K+ -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>K⁺ (mmol/L)</span>
+                  <span id="val-k" class="font-mono text-slate-200">4.2</span>
+                </div>
+                <input type="range" id="slider-k" min="2.0" max="7.5" step="0.1" value="4.2">
+              </div>
+
+              <!-- Cl- -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Cl⁻ (mmol/L)</span>
+                  <span id="val-cl" class="font-mono text-slate-200">104</span>
+                </div>
+                <input type="range" id="slider-cl" min="70" max="130" step="1" value="104">
+              </div>
+
+              <!-- Albumin -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Albumin (g/L)</span>
+                  <span id="val-albumin" class="font-mono text-slate-200">40</span>
+                </div>
+                <input type="range" id="slider-albumin" min="10" max="55" step="1" value="40">
+              </div>
+
+              <!-- Lactate -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Lactate (mmol/L)</span>
+                  <span id="val-lactate" class="font-mono text-slate-200">0.9</span>
+                </div>
+                <input type="range" id="slider-lactate" min="0.5" max="20.0" step="0.1" value="0.9">
+              </div>
+
+              <!-- Glucose -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Glucose (mmol/L)</span>
+                  <span id="val-glucose" class="font-mono text-slate-200">5.0</span>
+                </div>
+                <input type="range" id="slider-glucose" min="2.0" max="35.0" step="0.5" value="5.0">
+              </div>
+
+              <!-- Temperature -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Body Temp (°C)</span>
+                  <span id="val-temp" class="font-mono text-slate-200">37.0°C</span>
+                </div>
+                <input type="range" id="slider-temp" min="32.0" max="41.0" step="0.2" value="37.0">
+              </div>
+
+              <!-- Age -->
+              <div class="space-y-0.5">
+                <div class="flex justify-between text-slate-400 text-[11px]">
+                  <span>Age (Years)</span>
+                  <span id="val-age" class="font-mono text-slate-200">30 yrs</span>
+                </div>
+                <input type="range" id="slider-age" min="18" max="95" step="1" value="30">
+              </div>
+            </div>
+
+            <!-- Anion Gap & Delta-Delta Summary Inside Details -->
+            <div class="border-t border-slate-800/80 pt-2 space-y-1 text-xs text-slate-300">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Anion Gap:</span>
+                <span class="font-mono font-medium"><span id="val-anion-gap">12.0</span> mmol/L</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Albumin-Corrected AG:</span>
+                <span class="font-mono font-medium" id="val-corrected-ag">12.0 mmol/L</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Delta Ratio (ΔAG / ΔHCO₃⁻):</span>
+                <span class="font-mono font-medium" id="val-delta-ratio">N/A</span>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- RIGHT COLUMN: Single Focused Chart + Clinical Debrief (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Chart Container with Segmented Tab Switcher (Show ONE chart at a time) -->
+          <div class="clean-panel p-4 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+              <span class="text-xs font-semibold text-slate-200">Physiological Graphs</span>
+
+              <!-- Segmented Chart Buttons -->
+              <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+                <button data-chart="davenport" class="chart-tab-btn segmented-btn active px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors">
+                  Davenport Nomogram
+                </button>
+                <button data-chart="oxyhb" class="chart-tab-btn segmented-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 transition-colors">
+                  O₂ Dissociation (Bohr)
+                </button>
+                <button data-chart="gamblegram" class="chart-tab-btn segmented-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 transition-colors">
+                  Anion Gap
+                </button>
+              </div>
+            </div>
+
+            <!-- Single Visible Chart Pane (Height ~300px, spacious and clean) -->
+            <div class="relative w-full h-72">
+              <!-- Davenport Chart View -->
+              <div id="chart-view-davenport" class="chart-view w-full h-full">
+                <canvas id="chart-davenport"></canvas>
+              </div>
+              <!-- OxyHb Chart View -->
+              <div id="chart-view-oxyhb" class="chart-view w-full h-full hidden">
+                <canvas id="chart-oxyhb"></canvas>
+              </div>
+              <!-- Gamblegram Chart View -->
+              <div id="chart-view-gamblegram" class="chart-view w-full h-full hidden">
+                <canvas id="chart-gamblegram"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart Sub-information (quiet metric readout) -->
+            <div class="flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/80 pt-2 font-mono">
+              <div>AaDO₂: <span id="val-aado2" class="text-slate-200">1.5 kPa (11 mmHg)</span></div>
+              <div><span id="val-exp-aado2" class="text-slate-500">Expected: ~1.5 kPa</span></div>
+            </div>
+          </div>
+
+          <!-- Cohesive Clinical Explanation (Editorial, peaceful, readable) -->
+          <div class="clean-panel p-4 space-y-3">
+            <div class="border-b border-slate-800/80 pb-2">
+              <span class="text-xs font-semibold text-slate-200">Clinical & Pathophysiological Analysis</span>
+            </div>
+
+            <!-- Summary Text -->
+            <p id="explain-summary" class="text-xs text-slate-300 leading-relaxed font-normal"></p>
+
+            <!-- Enzymatic & Biochemical Pathway Lesion (Appears when an enzymatic condition is selected) -->
+            <div id="box-biochemical" class="hidden p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-sky-400 uppercase tracking-wider">Enzymatic / Cofactor Lesion</span>
+                <span id="bio-syndrome" class="text-[10px] text-slate-400 font-mono"></span>
+              </div>
+              <div class="text-slate-300">
+                <span class="text-slate-400 font-medium">Target Enzyme:</span>
+                <span id="bio-enzyme" class="text-slate-100 font-medium ml-1"></span>
+              </div>
+              <div class="text-slate-300">
+                <span class="text-slate-400 font-medium">Cofactors Required:</span>
+                <span id="bio-cofactors" class="text-slate-200 ml-1 font-mono text-[11px]"></span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded border border-slate-800 font-mono text-[11px] space-y-1 mt-1 text-slate-300">
+                <div><span class="text-slate-500">Normal Pathway:</span> <span id="bio-reaction"></span></div>
+                <div><span class="text-amber-300 font-semibold">Metabolic Shunt:</span> <span id="bio-shunt"></span></div>
+              </div>
+            </div>
+
+            <!-- Mechanism & Why pH changed -->
+            <div class="space-y-1 pt-1">
+              <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Mechanism (Why pH Changed)</div>
+              <p id="explain-why-ph" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
+
+            <!-- Compensation Details -->
+            <div class="space-y-1 pt-1">
+              <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Physiological Compensation</div>
+              <p id="explain-respiratory" class="text-xs text-slate-300 leading-relaxed"></p>
+              <p id="explain-renal" class="text-xs text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <!-- Anion Gap & Oxygenation Notes -->
+            <div class="space-y-1 pt-1">
+              <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Anion Gap & Oxygenation</div>
+              <p id="explain-anion-gap" class="text-xs text-slate-300 leading-relaxed"></p>
+              <p id="explain-oxygenation" class="text-xs text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <!-- Key Takeaways / Exam Pearl -->
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-300 mb-1.5">Exam Takeaways</div>
+              <ul id="explain-pearls" class="space-y-1 text-xs text-slate-300"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: 6-STEP CLINICAL ALGORITHM           -->
+    <!-- ========================================== -->
+    <div id="panel-algorithm" class="tab-content-panel hidden space-y-4">
+      <div class="clean-panel p-5 space-y-5">
+        <div>
+          <h2 class="text-base font-semibold text-slate-100">The 6-Step ABG Interpretation Guide</h2>
+          <p class="text-xs text-slate-400 mt-0.5">A simple, student-friendly roadmap to break down any arterial blood gas without confusion.</p>
+        </div>
+
+        <!-- Big Picture Intuition Banner -->
+        <div class="p-3.5 rounded-lg bg-slate-900 border border-slate-800 space-y-2 text-xs">
+          <div class="text-[11px] font-semibold text-sky-400 uppercase tracking-wider">The Big Picture: Two Organs on a Seesaw</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-300">
+            <div class="space-y-0.5">
+              <span class="font-medium text-slate-100">1. Lungs control CO₂ (Acid)</span>
+              <p class="text-slate-400 text-[11px]">Carbon dioxide dissolves into carbonic acid. You breathe it out. Fast reaction: responds in <strong class="text-slate-300">minutes</strong> by breathing faster or slower.</p>
+            </div>
+            <div class="space-y-0.5">
+              <span class="font-medium text-slate-100">2. Kidneys control HCO₃⁻ (Base)</span>
+              <p class="text-slate-400 text-[11px]">Bicarbonate is your liquid buffer sponge. Kidneys save or pee it out. Slower reaction: takes <strong class="text-slate-300">2 to 3 days</strong> to fully adapt.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs leading-relaxed">
+          <!-- Step 1 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 1</span>
+              <span class="font-semibold text-slate-100">Check the pH — Is the blood Acidic or Basic?</span>
+            </div>
+            <p class="text-slate-300">Normal healthy arterial blood pH is tightly defended between <strong class="text-slate-100">7.35 and 7.45</strong>.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-rose-400">pH &lt; 7.35 = Acidemia</span>
+                <p class="text-slate-400 mt-0.5">Too much acid or too little base in the blood.</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-emerald-400">7.35 – 7.45 = Normal</span>
+                <p class="text-slate-400 mt-0.5">Normal balance (or two severe disorders cancelling out!).</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-sky-400">pH &gt; 7.45 = Alkalemia</span>
+                <p class="text-slate-400 mt-0.5">Too much base or too little acid in the blood.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 2</span>
+              <span class="font-semibold text-slate-100">Find the Culprit — Who caused the problem?</span>
+            </div>
+            <p class="text-slate-300">Look at both numbers: <strong class="text-slate-100">PaCO₂</strong> (Lungs = acid gas) and <strong class="text-slate-100">HCO₃⁻</strong> (Kidneys = base sponge). Ask yourself: <em class="text-slate-200">Which one explains why the pH moved?</em></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-1">
+                <span class="font-semibold text-slate-200">If pH is Low (Acidic &lt; 7.35):</span>
+                <div class="text-slate-400">
+                  • If <strong class="text-slate-300">PaCO₂ is HIGH (&gt; 6.0 kPa / 45 mmHg)</strong>: Lungs trapped acid gas → <span class="text-rose-300 font-medium">Respiratory Acidosis</span> (e.g. stopped breathing).<br>
+                  • If <strong class="text-slate-300">HCO₃⁻ is LOW (&lt; 22 mmol/L)</strong>: Body lost base or gathered acid → <span class="text-rose-300 font-medium">Metabolic Acidosis</span> (e.g. DKA, diarrhea).
+                </div>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-1">
+                <span class="font-semibold text-slate-200">If pH is High (Basic &gt; 7.45):</span>
+                <div class="text-slate-400">
+                  • If <strong class="text-slate-300">PaCO₂ is LOW (&lt; 4.7 kPa / 35 mmHg)</strong>: Lungs blew off too much acid → <span class="text-sky-300 font-medium">Respiratory Alkalosis</span> (e.g. hyperventilating).<br>
+                  • If <strong class="text-slate-300">HCO₃⁻ is HIGH (&gt; 26 mmol/L)</strong>: Body accumulated base or lost stomach acid → <span class="text-sky-300 font-medium">Metabolic Alkalosis</span> (e.g. vomiting).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 3</span>
+              <span class="font-semibold text-slate-100">Check Compensation — Is the other organ trying to help?</span>
+            </div>
+            <p class="text-slate-300">When one organ fails, the healthy organ works overtime to drag the pH back toward safe levels.</p>
+            <div class="p-2.5 rounded bg-slate-900/80 border border-slate-800 text-[11px] space-y-1 text-slate-300">
+              <div><strong class="text-amber-300">The Golden Law:</strong> The body <strong class="text-slate-100">never overcompensates</strong>. It never turns an acidosis into an alkalosis.</div>
+              <div><strong class="text-sky-300">Winter's Rule of Thumb (for Metabolic Acidosis):</strong> If bicarbonate drops, the lungs MUST breathe faster to lower PaCO₂. Expected PaCO₂ (mmHg) ≈ <span class="font-mono text-slate-100">1.5 × [HCO₃⁻] + 8</span> (in kPa: <span class="font-mono text-slate-100">[HCO₃⁻] × 0.2 + 1.1</span>). If measured PaCO₂ is higher than expected, the patient is also in respiratory failure!</div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 4</span>
+              <span class="font-semibold text-slate-100">If Metabolic Acidosis: Calculate the Anion Gap ("The Mystery Acid Test")</span>
+            </div>
+            <p class="text-slate-300">Blood is always electrically neutral. Normally, Sodium (positive) is balanced by Chloride and Bicarbonate (negative), leaving a normal gap of <strong class="text-slate-100">12 ± 2 mmol/L (10 to 14 mmol/L)</strong> for unmeasured proteins (mainly albumin).</p>
+            <div class="font-mono text-[11px] bg-slate-900 p-2 rounded border border-slate-800 text-center text-slate-200">
+              Anion Gap = Na⁺ - (Cl⁻ + HCO₃⁻) &nbsp;&nbsp;[Normal average: 12 mmol/L (range: 10 – 14 mmol/L)]
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-0.5">
+                <span class="font-semibold text-rose-300">High Anion Gap (&gt; 14) — "Mystery Acid"</span>
+                <p class="text-slate-400">Dangerous unmeasured acids (like ketones, lactic acid, or poisons) entered the blood and destroyed bicarbonate. Look at the <strong class="text-slate-200">GOLD MARK</strong> tab!</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-0.5">
+                <span class="font-semibold text-teal-300">Normal Anion Gap (10–14) — "Base Leak"</span>
+                <p class="text-slate-400">No mystery acid. The body simply lost bicarbonate directly (like severe diarrhea), and the kidneys held onto extra Chloride to compensate. Look at <strong class="text-slate-200">HARDUPS</strong>!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 5</span>
+              <span class="font-semibold text-slate-100">Check the Delta Ratio — Is a second disorder hiding in secret?</span>
+            </div>
+            <p class="text-slate-300">When the Anion Gap is high, compare how much the gap opened up (<span class="font-mono">ΔAG = AG - 12</span>) versus how much bicarbonate was lost (<span class="font-mono">ΔHCO₃ = 24 - HCO₃⁻</span>).</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-slate-200">Ratio ~ 1.0 (0.8–1.6)</span>
+                <p class="text-slate-400 mt-0.5">Pure High Anion Gap Acidosis. Every 1 molecule of mystery acid consumed exactly 1 molecule of bicarbonate (e.g. pure DKA).</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-amber-300">Ratio &gt; 2.0</span>
+                <p class="text-slate-400 mt-0.5"><strong class="text-slate-200">Hidden Metabolic Alkalosis!</strong> Bicarbonate is higher than expected—for example, a diabetic patient who has also been violently vomiting stomach acid.</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800">
+                <span class="font-semibold text-teal-300">Ratio &lt; 0.8</span>
+                <p class="text-slate-400 mt-0.5"><strong class="text-slate-200">Mixed Acidosis!</strong> Patient has both high-gap and normal-gap acidosis (e.g. DKA plus severe diarrhea).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="p-3.5 clean-panel-subtle space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold text-[11px]">Step 6</span>
+              <span class="font-semibold text-slate-100">Check Oxygenation & the A-a Gradient</span>
+            </div>
+            <p class="text-slate-300">Normal arterial oxygen (<strong class="text-slate-100">PaO₂</strong>) is <strong class="text-slate-100">10.0 to 13.3 kPa (75 to 100 mmHg)</strong> on room air. If oxygen is low, the <strong class="text-slate-100">Alveolar-Arterial (A-a) Gradient</strong> answers: <em class="text-slate-200">Are the lungs broken, or is the patient just not breathing?</em></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-0.5">
+                <span class="font-semibold text-slate-200">Normal A-a Gradient (Lungs are healthy):</span>
+                <p class="text-slate-400">Oxygen easily crosses the lung membranes, but not enough air is reaching the alveoli (e.g., opioid overdose or chest muscle weakness). Reverse the hypoventilation and oxygen returns to normal!</p>
+              </div>
+              <div class="p-2 rounded bg-slate-900/80 border border-slate-800 space-y-0.5">
+                <span class="font-semibold text-rose-300">High A-a Gradient (Lungs are diseased):</span>
+                <p class="text-slate-400">Oxygen cannot cross into the blood due to physical lung damage, fluid, or blood clots (e.g., pneumonia, pulmonary embolism, pulmonary edema, ARDS).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: GOLD MARK & ACRONYM COMPENDIUM      -->
+    <!-- ========================================== -->
+    <div id="panel-acronyms" class="tab-content-panel hidden space-y-4">
+      <div class="clean-panel p-5 space-y-5">
+        <div>
+          <h2 class="text-base font-semibold text-slate-100">Exam Acronym Compendium: GOLD MARK & HARDUPS</h2>
+          <p class="text-xs text-slate-400 mt-0.5">The modern, high-yield memory aids for diagnosing metabolic acidoses on medical licensing exams.</p>
+        </div>
+
+        <!-- Concept Explainer -->
+        <div class="p-3.5 rounded-lg bg-slate-900 border border-slate-800 space-y-2 text-xs">
+          <div class="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">Why does the Anion Gap open up? (The "Sponge" Analogy)</div>
+          <p class="text-slate-300 leading-relaxed text-[11px]">
+            Think of circulating bicarbonate (HCO₃⁻) as a protective sponge that absorbs acid. In health, positive sodium ions (Na⁺) are balanced by negative chloride (Cl⁻) and bicarbonate (HCO₃⁻), with a small normal gap of 10–14 mmol/L. When abnormal organic acids enter your blood, they soak into the sponge, destroying bicarbonate. But the acid's negative partner (formate, lactate, ketones) stays behind unmeasured, blowing open a <strong class="text-slate-100">High Anion Gap</strong>.
+          </p>
+        </div>
+
+        <!-- GOLD MARK Grid -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="text-xs font-semibold text-slate-200">GOLD MARK — High Anion Gap Acidosis (HAGMA)</span>
+            <span class="text-[11px] text-slate-500 font-mono">Replaces older MUDPILES</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <!-- G -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">G — Glycols (Antifreeze & Brake Fluid)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Toxin</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Drinking <strong class="text-slate-100">ethylene glycol</strong> (car antifreeze) or propylene glycol. The liver turns it into oxalic acid, which binds calcium and creates needle-shaped <strong class="text-slate-200">calcium oxalate crystals</strong> that plug and destroy the kidneys.
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: Acute renal failure + crystals in urine + urine glows under Wood's UV lamp. Antidote: Fomepizole.
+              </div>
+            </div>
+
+            <!-- O -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">O — Oxoproline (Tylenol in Malnutrition)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Drug Reaction</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Occurs in malnourished, elderly, or septic patients taking regular <strong class="text-slate-100">paracetamol (acetaminophen)</strong>. Depletion of liver glutathione unlocks an enzyme pathway that churns out 5-oxoproline acid.
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: Unexplained high anion gap in a paracetamol user with completely NORMAL lactate and glucose!
+              </div>
+            </div>
+
+            <!-- L -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">L — L-Lactate (Shock & Oxygen Starvation)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Commonest Inpatient</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                The most frequent acidosis in the ICU. When tissues don't get enough blood flow or oxygen (septic shock, cardiac arrest, ischemic bowel), cells switch to emergency anaerobic metabolism, producing massive <strong class="text-slate-100">L-lactic acid</strong>.
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: Low blood pressure, cold extremities, serum lactate &gt; 2.0–4.0 mmol/L. Also seen in Metformin toxicity.
+              </div>
+            </div>
+
+            <!-- D -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">D — D-Lactate (Short Bowel Bacteria)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Gut Fermentation</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                A rare exam favorite! In patients who had surgical bowel resections (short bowel syndrome), undigested carbs reach colonic bacteria, which ferment them into <strong class="text-slate-100">D-lactate</strong> (a mirror molecule human cells cannot process).
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: Confusion and slurred speech ("acting drunk") after pasta/bread, but standard hospital lactate test is NORMAL!
+              </div>
+            </div>
+
+            <!-- M -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">M — Methanol (Moonshine & Windshield Fluid)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Toxin</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Ingestion of adulterated homemade spirits or windshield washer solvent. The liver converts methanol into <strong class="text-slate-100">formic acid</strong>, which poisons mitochondrial respiration and destroys the optic nerve.
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: "Snowstorm" visual loss, dilated pupils, massive osmolal gap. Antidote: Fomepizole or IV ethanol.
+              </div>
+            </div>
+
+            <!-- A -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">A — Aspirin / Salicylates (Classic Mixed Disturbance)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Overdose</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Aspirin overdose causes a unique 2-stage disorder: directly stimulates the brain breathing center (causing early <strong class="text-slate-100">respiratory alkalosis</strong>), then poisons cellular power plants (causing <strong class="text-slate-100">high-gap metabolic acidosis</strong>).
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: Triad of Tinnitus (ringing ears) + High Fever + Rapid breathing, with near-normal pH masking dual disaster!
+              </div>
+            </div>
+
+            <!-- R -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">R — Renal Failure (Uremia)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Organ Failure</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Every day, body metabolism generates waste acids (sulfates, phosphates, urate). When the kidneys stop filtering urine, these natural daily metabolic acids pile up in the blood.
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: High BUN / Urea, high creatinine, oliguria (no urine output), and high potassium.
+              </div>
+            </div>
+
+            <!-- K -->
+            <div class="p-3 clean-panel-subtle space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-400">K — Ketoacidosis (Diabetes, Alcohol, Starvation)</span>
+                <span class="text-[10px] text-slate-500 font-mono">Metabolic</span>
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                When cells cannot access glucose for fuel, the liver burns fat into acidic ketone bodies (beta-hydroxybutyrate and acetoacetate).
+              </p>
+              <div class="text-[10px] text-slate-400 font-mono bg-slate-900/60 p-1.5 rounded">
+                Exam Clue: DKA = High glucose + fruity breath + Kussmaul deep breathing. AKA = Binge drinker vomiting without food with normal/low glucose.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HARDUPS -->
+        <div class="space-y-3 pt-3 border-t border-slate-800/80">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-200">HARDUPS — Normal Anion Gap (Hyperchloremic) Acidosis (NAGMA)</span>
+              <span class="text-[11px] text-teal-400 font-mono">Anion Gap is 10–14</span>
+            </div>
+            <p class="text-slate-400 text-[11px] mt-1 leading-relaxed">
+              Why is the gap normal? Because there is NO mystery acid! The body simply lost bicarbonate base directly (usually through diarrhea or urine). To keep electrical neutrality, the kidneys grab extra Chloride (Cl⁻) from the blood. Chloride rises by the exact amount Bicarbonate fell, keeping the gap perfectly normal!
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">H</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Hyperalimentation:</strong> IV parenteral nutrition (TPN) with excess chloride salts.</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">A</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Acetazolamide:</strong> Glaucoma/altitude drug that stops kidneys from saving bicarbonate.</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">R</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Renal Tubular Acidosis (RTA):</strong> Kidneys can't excrete acid or reclaim bicarbonate.</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">D</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Diarrhea (#1 Cause!):</strong> Lower bowel fluid is rich in base. Diarrhea poops out your bicarbonate.</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">U</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Ureteral Diversion:</strong> Surgical routing of urine into bowel (colon absorbs Cl⁻, dumps HCO₃⁻).</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">P</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Pancreatic Fistula:</strong> Pancreatic juice is rich in bicarbonate; surgical leaks cause severe base deficit.</div>
+            </div>
+            <div class="p-2.5 clean-panel-subtle flex items-start gap-2 sm:col-span-2">
+              <span class="font-mono font-bold text-teal-400 shrink-0">S</span>
+              <div class="text-[11px] text-slate-300"><strong class="text-slate-100">Saline Overload (0.9% NaCl):</strong> Infusing liters of "normal" saline infuses 154 mmol/L of chloride (normal blood is only ~102), crowding out bicarbonate.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: EXAM CASE CHALLENGES (QUIZ)         -->
+    <!-- ========================================== -->
+    <div id="panel-quiz" class="tab-content-panel hidden space-y-4">
+      <div class="clean-panel p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div>
+            <span id="quiz-case-counter" class="text-xs text-slate-400 font-mono">Case 1 of 5</span>
+            <h2 id="quiz-case-title" class="text-sm font-semibold text-slate-100 mt-0.5">Clinical Case Vignette</h2>
+          </div>
+          <div id="quiz-score-badge" class="text-xs font-mono text-slate-300 px-2.5 py-1 rounded bg-slate-900 border border-slate-800">
+            Score: 0 / 5
+          </div>
+        </div>
+
+        <!-- Vignette -->
+        <div class="p-3.5 clean-panel-subtle text-xs text-slate-300 leading-relaxed font-mono">
+          <p id="quiz-case-vignette"></p>
+        </div>
+
+        <!-- Question & Options -->
+        <div class="space-y-2">
+          <h3 id="quiz-case-question" class="text-xs font-medium text-slate-200"></h3>
+          <div id="quiz-options-container" class="space-y-1.5"></div>
+        </div>
+
+        <!-- Feedback & Explanation -->
+        <div id="quiz-case-feedback" class="hidden"></div>
+
+        <!-- Navigation Controls -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs">
+          <button id="btn-load-case-in-sim" class="text-slate-400 hover:text-slate-200 transition-colors">
+            Load case values in simulator
+          </button>
+          <div class="flex items-center gap-2">
+            <button id="btn-prev-case" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">Previous</button>
+            <button id="btn-next-case" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/abg-engine.js?v=20261020_01"></script>
+  <script src="js/disease-presets.js?v=20261020_01"></script>
+  <script src="js/cases-quiz.js?v=20261020_01"></script>
+  <script src="js/charts.js?v=20261020_01"></script>
+  <script src="js/app.js?v=20261020_01"></script>
+</body>
+</html>

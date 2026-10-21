@@ -53,14 +53,21 @@ Includes 1-click clinical presets with extensive molecular and organ-level narra
   - **Cyanide / Smoke Poisoning**: Cytochrome c Oxidase (Complex IV) arrest, histotoxic dysoxia, and normal PaO2 paradox.
   - **Glutathione Depletion (5-Oxoprolinuria)**: Chronic paracetamol deregulation of the $\gamma$-glutamyl cycle.
 
-### 4. High-Yield Acronym Compendium
+### 4. Step-by-Step Clinical Management & Therapeutic Strategy Manual
+Comprehensive evidence-based bedside protocols for all 21 clinical scenarios:
+- **Concrete Action & Dosing**: Specific crystalloid selection, infusion rates, antidote regimens, and ventilatory targets.
+- **The Pathophysiological "WHY"**: Detailed cellular and organ-level mechanisms explaining why each therapeutic step is essential (e.g., why volume expansion turns off counter-regulatory stress hormones; why alkalinizing urine increases salicylate clearance by 20-fold).
+- **Critical Clinical Pitfalls & Traps**: Highlighted warnings (e.g., why insulin must never be started if serum potassium is < 3.3 mmol/L in DKA; why glucose alone without thiamine triggers acute Wernicke's encephalopathy in AKA/PDH; why intubation in severe aspirin overdose carries extreme mortality risk).
+- **Searchable & Filterable Directory**: Filter by Metabolic Acidosis, Toxic Ingestions, Biochemical Lesions, Respiratory, or Alkalosis, with 1-click loading into the simulator.
+
+### 5. High-Yield Acronym Compendium
 Full biochemical breakdowns for:
 - **GOLD MARK** (Glycols, Oxoproline, L-lactate, D-lactate, Methanol, Aspirin, Renal failure, Ketoacidosis)
 - **MUDPILES** comparison
 - **KULT** (German Staatsexamen classic)
 - **HARDUPS / USED CRAP** (Normal Anion Gap / Hyperchloremic causes)
 
-### 5. 6-Step Clinical Algorithm & Exam Quiz
+### 6. 6-Step Clinical Algorithm & Exam Quiz
 - Guaranteed step-by-step diagnostic workflow using Winter's formula and Delta-Delta ratios.
 - Clinical vignettes with interactive multiple-choice questions, board-style explanations, and score tracking.
 

@@ -120,6 +120,20 @@
     elements.bioCofactors = document.getElementById('bio-cofactors');
     elements.bioReaction = document.getElementById('bio-reaction');
     elements.bioShunt = document.getElementById('bio-shunt');
+
+    // Therapy Strategy in Simulator
+    elements.panelTherapyStrategy = document.getElementById('panel-therapy-strategy');
+    elements.therapyTitle = document.getElementById('therapy-title');
+    elements.therapyUrgencyBadge = document.getElementById('therapy-urgency-badge');
+    elements.therapyKeyConcept = document.getElementById('therapy-key-concept');
+    elements.therapyStepsContainer = document.getElementById('therapy-steps-container');
+
+    // Therapy Manual Tab Elements
+    elements.therapyProtocolsList = document.getElementById('therapy-protocols-list');
+    elements.therapySearchInput = document.getElementById('therapy-search-input');
+    elements.btnClearTherapySearch = document.getElementById('btn-clear-therapy-search');
+    elements.therapyFilterBtns = document.querySelectorAll('.therapy-filter-btn');
+    elements.therapyCountBadge = document.getElementById('therapy-count-badge');
   }
 
   function renderPresets() {
@@ -346,6 +360,7 @@
           </li>
         `).join('');
       }
+      updateTherapyStrategy(preset.id);
       return;
     }
 
@@ -425,6 +440,8 @@
         </li>
       `;
     }
+
+    updateTherapyStrategyForCustom(analysis);
   }
 
   /**
@@ -619,10 +636,44 @@
         }
       });
     }
+
+    // Therapy Manual Search & Filter Listeners
+    if (elements.therapySearchInput) {
+      elements.therapySearchInput.addEventListener('input', () => {
+        if (elements.btnClearTherapySearch) {
+          elements.btnClearTherapySearch.classList.toggle('hidden', !elements.therapySearchInput.value);
+        }
+        renderTherapyManual();
+      });
+    }
+
+    if (elements.btnClearTherapySearch) {
+      elements.btnClearTherapySearch.addEventListener('click', () => {
+        if (elements.therapySearchInput) {
+          elements.therapySearchInput.value = '';
+          elements.btnClearTherapySearch.classList.add('hidden');
+          renderTherapyManual();
+        }
+      });
+    }
+
+    if (elements.therapyFilterBtns) {
+      elements.therapyFilterBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentTherapyFilter = e.currentTarget.getAttribute('data-therapy-filter');
+          elements.therapyFilterBtns.forEach(b => {
+            b.className = b === e.currentTarget
+              ? 'therapy-filter-btn px-2.5 py-1 rounded-md bg-slate-800 text-slate-100 font-medium transition-colors'
+              : 'therapy-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors';
+          });
+          renderTherapyManual();
+        });
+      });
+    }
   }
 
   /**
-   * Switch Active Tab (Simulator vs Compendium / Acronyms vs Exam Quiz)
+   * Switch Active Tab (Simulator vs Therapy Manual vs Compendium / Acronyms vs Exam Quiz)
    */
   function switchTab(tabId) {
     state.activeTab = tabId;
@@ -647,6 +698,193 @@
 
     if (tabId === 'quiz') {
       renderQuizCase();
+    }
+    if (tabId === 'therapy') {
+      renderTherapyManual();
+    }
+  }
+
+  let currentTherapyFilter = 'all';
+
+  /**
+   * Update the Clinical Management Strategy Card in the Simulator
+   */
+  function updateTherapyStrategy(presetId) {
+    if (!elements.panelTherapyStrategy) return;
+
+    const protocol = (typeof TherapyProtocols !== 'undefined') ? TherapyProtocols[presetId] : null;
+    if (!protocol) {
+      elements.panelTherapyStrategy.classList.add('hidden');
+      return;
+    }
+
+    elements.panelTherapyStrategy.classList.remove('hidden');
+    if (elements.therapyTitle) {
+      elements.therapyTitle.textContent = protocol.title;
+    }
+    if (elements.therapyUrgencyBadge) {
+      elements.therapyUrgencyBadge.textContent = protocol.urgency;
+      const color = protocol.urgencyColor || 'emerald';
+      elements.therapyUrgencyBadge.className = `px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-${color}-950/80 text-${color}-300 border border-${color}-800/60`;
+    }
+    if (elements.therapyKeyConcept) {
+      elements.therapyKeyConcept.innerHTML = `<span class="text-emerald-400 font-semibold block mb-0.5">Core Clinical Target:</span> ${protocol.keyConcept}`;
+    }
+
+    if (elements.therapyStepsContainer) {
+      elements.therapyStepsContainer.innerHTML = protocol.steps.map(s => `
+        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1.5 transition-all hover:border-slate-700">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/70 font-mono font-bold text-[10px]">
+                STEP ${s.step}
+              </span>
+              <span class="font-semibold text-slate-100 text-xs">${s.action}</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] font-mono text-sky-300 bg-slate-950/80 px-2 py-1 rounded border border-slate-800/80">
+            <span class="text-slate-500 font-sans uppercase text-[10px] tracking-wider block sm:inline mr-1">Target / Dosing:</span>
+            ${s.dosing}
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed pt-0.5">
+            <strong class="text-emerald-400 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
+          </p>
+
+          ${s.pitfall ? `
+            <div class="mt-1 p-2 rounded bg-amber-950/30 border border-amber-900/50 text-[11px] text-amber-200 leading-relaxed flex items-start gap-1.5">
+              <span class="shrink-0 text-amber-400 font-bold">⚠️ Pitfall:</span>
+              <span>${s.pitfall}</span>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+  }
+
+  /**
+   * Update Therapy Strategy for Custom Slider Deviations
+   */
+  function updateTherapyStrategyForCustom(analysis) {
+    if (!elements.panelTherapyStrategy) return;
+    elements.panelTherapyStrategy.classList.remove('hidden');
+
+    const isAcid = state.pH < 7.35;
+    const isAlk = state.pH > 7.45;
+
+    if (elements.therapyTitle) {
+      elements.therapyTitle.textContent = isAcid ? 'Acute Acidemia Clinical Management Principles' : (isAlk ? 'Acute Alkalemia Clinical Management Principles' : 'Physiological Acid-Base Equilibrium');
+    }
+    if (elements.therapyUrgencyBadge) {
+      elements.therapyUrgencyBadge.textContent = (isAcid || isAlk) ? 'Active Deviation' : 'Normal Range';
+      elements.therapyUrgencyBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-sky-950 text-sky-300 border border-sky-800';
+    }
+    if (elements.therapyKeyConcept) {
+      elements.therapyKeyConcept.innerHTML = `<span class="text-sky-400 font-semibold block mb-0.5">Custom Simulation Mode:</span> You are adjusting custom physiological parameters. To inspect disease-specific pharmacological protocols (e.g. DKA, Methanol, Aspirin, Sepsis, COPD), select a clinical scenario preset above or open the <strong>Therapy Manual</strong> tab.`;
+    }
+
+    if (elements.therapyStepsContainer) {
+      const step1Action = isAcid ? 'Assess ABCs & Hemodynamic Perfusion' : (isAlk ? 'Assess Volume & Chloride Responsiveness' : 'Maintain Baseline Physiological Solute & Water Intake');
+      const step1Dosing = isAcid ? 'Airway patency, SpO₂ > 92%, IV access, fluid resuscitation if hypotensive' : (isAlk ? 'Check urine chloride (UCl < 20 = Saline responsive; UCl > 20 = Saline resistant)' : 'Balanced hydration 25–30 mL/kg/day');
+      const step1Why = isAcid ? 'Acidemia impairs myocardial contractility and induces peripheral vasodilation. Restoring perfusion improves tissue oxygen delivery.' : (isAlk ? 'Most metabolic alkalosis is maintained by volume contraction and chloride depletion.' : 'Supports normal renal and respiratory excretion.');
+
+      elements.therapyStepsContainer.innerHTML = `
+        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 font-mono font-bold text-[10px]">GUIDELINE</span>
+            <span class="font-semibold text-slate-100 text-xs">${step1Action}</span>
+          </div>
+          <div class="text-[11px] font-mono text-sky-300 bg-slate-950/80 px-2 py-1 rounded border border-slate-800/80">${step1Dosing}</div>
+          <p class="text-xs text-slate-300 leading-relaxed"><strong class="text-sky-400">Physiology:</strong> ${step1Why}</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * Render the Complete Searchable Therapy Manual Tab
+   */
+  function renderTherapyManual() {
+    if (!elements.therapyProtocolsList || typeof TherapyProtocols === 'undefined') return;
+
+    const query = (elements.therapySearchInput ? elements.therapySearchInput.value : '').toLowerCase().trim();
+    const protocols = Object.values(TherapyProtocols);
+
+    let visibleCount = 0;
+    elements.therapyProtocolsList.innerHTML = protocols.map(proto => {
+      const matchesFilter = currentTherapyFilter === 'all' || proto.category === currentTherapyFilter || 
+        (currentTherapyFilter === 'Alkalosis' && (proto.category.includes('Alkalosis') || proto.id === 'hyperventilation_acute' || proto.id === 'severe_vomiting'));
+
+      const searchContent = `${proto.title} ${proto.category} ${proto.keyConcept} ${proto.steps.map(s => s.action + ' ' + s.dosing + ' ' + s.why + ' ' + (s.pitfall || '')).join(' ')}`.toLowerCase();
+      const matchesQuery = !query || searchContent.includes(query);
+
+      const isVisible = matchesFilter && matchesQuery;
+      if (isVisible) visibleCount++;
+
+      const color = proto.urgencyColor || 'emerald';
+
+      return `
+        <article class="therapy-card clean-panel p-4 sm:p-5 space-y-4 border border-slate-800 transition-all ${isVisible ? '' : 'hidden'}" data-therapy-id="${proto.id}">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-900 text-slate-300 border border-slate-800">
+                  ${proto.category}
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-${color}-950 text-${color}-300 border border-${color}-800">
+                  ${proto.urgency}
+                </span>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-100">${proto.title}</h3>
+            </div>
+            
+            <button type="button" onclick="applyPreset('${proto.id}'); switchTab('simulator');" class="self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-800/80 transition-colors flex items-center gap-1.5">
+              <span>Load in Simulator</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs text-slate-200 leading-relaxed font-mono">
+            <span class="text-emerald-400 font-semibold block font-sans uppercase text-[10px] tracking-wider mb-0.5">Core Clinical Target:</span>
+            ${proto.keyConcept}
+          </div>
+
+          <!-- Step by Step Grid -->
+          <div class="space-y-3 pt-1">
+            ${proto.steps.map(s => `
+              <div class="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/70 font-mono font-bold text-[10px]">
+                    STEP ${s.step}
+                  </span>
+                  <h4 class="font-bold text-slate-100 text-xs sm:text-[13px]">${s.action}</h4>
+                </div>
+
+                <div class="text-[11px] font-mono text-sky-300 bg-slate-950 p-2 rounded border border-slate-800">
+                  <span class="text-slate-500 font-sans uppercase text-[10px] tracking-wider block sm:inline mr-1">Dosing &amp; Regimen:</span>
+                  ${s.dosing}
+                </div>
+
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  <strong class="text-emerald-400 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
+                </p>
+
+                ${s.pitfall ? `
+                  <div class="p-2.5 rounded bg-amber-950/25 border border-amber-900/50 text-[11px] text-amber-200 leading-relaxed flex items-start gap-2">
+                    <span class="shrink-0 text-amber-400 font-bold">⚠️ Clinical Trap:</span>
+                    <span>${s.pitfall}</span>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    if (elements.therapyCountBadge) {
+      elements.therapyCountBadge.textContent = `Showing ${visibleCount} of ${protocols.length} Protocols`;
     }
   }
 
@@ -784,6 +1022,15 @@
 
     setupEventListeners();
     applyPreset('normal');
+    renderTherapyManual();
+
+    // Deep linking via URL hash (e.g. #therapy, #algorithm, #quiz, or #dka)
+    const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+    if (hash === 'therapy' || hash === 'algorithm' || hash === 'acronyms' || hash === 'quiz') {
+      switchTab(hash);
+    } else if (hash && typeof DiseasePresets !== 'undefined' && DiseasePresets.some(p => p.id === hash)) {
+      applyPreset(hash);
+    }
   }
 
   // Run on DOM Ready
@@ -794,10 +1041,12 @@
   }
 
   // Global exposure
+  window.switchTab = switchTab;
   window.applyPreset = applyPreset;
   window.ArterioGas = {
     state,
     applyPreset,
+    switchTab,
     recalculateAndUpdateUI
   };
 })();

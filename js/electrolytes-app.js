@@ -276,8 +276,8 @@
       elements.pearlFilterBtns.forEach(btn => {
         const isMatch = btn.getAttribute('data-pearl-filter') === filter;
         btn.className = isMatch
-          ? 'pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-800 text-slate-100 font-medium transition-colors'
-          : 'pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors';
+          ? 'pearl-filter-btn px-2.5 py-1 rounded-md bg-slate-900 text-white font-medium shadow-xs transition-colors'
+          : 'pearl-filter-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors';
       });
     }
     filterPearlCards();
@@ -327,8 +327,8 @@
     elements.navBtns.forEach(btn => {
       const match = btn.getAttribute('data-tab') === tabId;
       btn.className = match
-        ? 'nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-100 bg-slate-800'
-        : 'nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-400 hover:text-slate-200';
+        ? 'nav-tab-btn px-3 py-1 rounded-md font-semibold transition-colors text-slate-900 bg-white shadow-xs border border-slate-200/80'
+        : 'nav-tab-btn px-3 py-1 rounded-md font-medium transition-colors text-slate-600 hover:text-slate-900';
     });
 
     elements.panels.forEach(panel => {
@@ -418,8 +418,8 @@
     elements.diureticBtns.forEach(btn => {
       const isSelected = btn.getAttribute('data-diuretic') === diureticId;
       btn.className = isSelected
-        ? 'diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-100 bg-sky-900/60 border border-sky-600 transition-colors'
-        : 'diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 bg-slate-900/60 border border-slate-800 hover:text-slate-200 transition-colors';
+        ? 'diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-sky-600 border border-sky-600 shadow-xs transition-colors'
+        : 'diuretic-btn px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors';
     });
 
     // Update Nephron SVG
@@ -465,24 +465,51 @@
     if (elements.channelIons) elements.channelIons.textContent = channel.ions;
     if (elements.channelExplain) elements.channelExplain.textContent = channel.plainEnglish;
 
+    // Segment color mapping matching nephron SVG palette
+    let segmentColor = 'sky';
+    let borderAccent = 'border-l-sky-600';
+    let boxClasses = 'bg-sky-50 border-sky-200 text-sky-900';
+    let titleColor = 'text-sky-800';
+
+    if (channel.id === 'ca' || channel.id === 'sglt2') {
+      segmentColor = 'teal';
+      borderAccent = 'border-l-teal-600';
+      boxClasses = 'bg-teal-50 border-teal-200 text-teal-900';
+      titleColor = 'text-teal-800';
+    } else if (channel.id === 'ncc' || channel.id === 'trpv5') {
+      segmentColor = 'purple';
+      borderAccent = 'border-l-purple-600';
+      boxClasses = 'bg-purple-50 border-purple-200 text-purple-900';
+      titleColor = 'text-purple-800';
+    } else if (channel.id === 'enac' || channel.id === 'romk_ccd' || channel.id === 'aqp2') {
+      segmentColor = 'rose';
+      borderAccent = 'border-l-rose-600';
+      boxClasses = 'bg-rose-50 border-rose-200 text-rose-900';
+      titleColor = 'text-rose-800';
+    }
+
     const pearlEl = document.getElementById('channel-pearl');
     const pearlBox = document.getElementById('channel-pearl-box');
+    const pearlTitle = document.getElementById('channel-pearl-title');
     if (pearlEl && channel.examPearl) {
       pearlEl.textContent = channel.examPearl;
-      if (pearlBox) pearlBox.classList.remove('hidden');
+      if (pearlBox) {
+        pearlBox.className = `md:col-span-5 p-3 rounded-lg border text-xs space-y-1 ${boxClasses}`;
+        pearlBox.classList.remove('hidden');
+      }
+      if (pearlTitle) {
+        pearlTitle.className = `text-[10px] font-mono uppercase tracking-wider font-bold block ${titleColor}`;
+      }
     } else if (pearlBox) {
       pearlBox.classList.add('hidden');
     }
 
     if (elements.channelCard) {
+      elements.channelCard.className = `p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200 border-l-4 ${borderAccent} shadow-xs space-y-3 transition-colors`;
       const rect = elements.channelCard.getBoundingClientRect();
       if (rect.top < 60) {
         elements.channelCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-      elements.channelCard.classList.add('ring-2', 'ring-sky-400/50');
-      setTimeout(() => {
-        elements.channelCard.classList.remove('ring-2', 'ring-sky-400/50');
-      }, 600);
     }
   }
 
@@ -579,15 +606,15 @@
       optBtn.className = `w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-start gap-3 ${
         answeredIndex !== undefined
           ? (opt.isCorrect 
-              ? 'bg-emerald-950/50 border-emerald-500 text-emerald-200' 
-              : (answeredIndex === idx ? 'bg-red-950/50 border-red-500 text-red-200' : 'bg-slate-800/40 border-slate-700/60 text-slate-400 opacity-60'))
-          : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 hover:border-sky-500/60 text-slate-200'
+              ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-medium font-sans' 
+              : (answeredIndex === idx ? 'bg-rose-50 border-rose-500 text-rose-950 font-medium font-sans' : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60 font-sans'))
+          : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-sky-400 text-slate-800 shadow-xs font-sans'
       }`;
 
       const letterBadge = String.fromCharCode(65 + idx);
       optBtn.innerHTML = `
-        <span class="w-6 h-6 rounded-md bg-slate-700/80 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${letterBadge}</span>
-        <span class="text-xs font-medium leading-relaxed">${opt.text}</span>
+        <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 text-xs font-bold font-sans flex items-center justify-center shrink-0 mt-0.5 border border-slate-200">${letterBadge}</span>
+        <span class="text-xs font-medium font-sans leading-relaxed">${opt.text}</span>
       `;
 
       if (answeredIndex === undefined) {
@@ -630,18 +657,18 @@
     elements.quizFeedback.classList.remove('hidden');
 
     elements.quizFeedback.innerHTML = `
-      <div class="font-semibold text-xs mb-1.5 ${isCorrect ? 'text-sky-300' : 'text-rose-400'}">
+      <div class="font-semibold text-xs mb-1.5 ${isCorrect ? 'text-sky-700' : 'text-rose-700'}">
         ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
       </div>
-      <p class="text-slate-300 mb-2.5">${opt.feedback}</p>
-      <div class="border-t border-slate-800 pt-2 space-y-1.5">
+      <p class="text-slate-700 mb-2.5">${opt.feedback}</p>
+      <div class="border-t border-slate-200 pt-2 space-y-1.5">
         <div>
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Pathophysiology</span>
-          <p class="text-slate-300 mt-0.5">${caseData.explanation}</p>
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Pathophysiology</span>
+          <p class="text-slate-800 mt-0.5">${caseData.explanation}</p>
         </div>
         <div class="pt-1">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Exam Pearl</span>
-          <p class="text-slate-300 mt-0.5">${caseData.pearl}</p>
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Exam Pearl</span>
+          <p class="text-slate-800 mt-0.5">${caseData.pearl}</p>
         </div>
       </div>
     `;

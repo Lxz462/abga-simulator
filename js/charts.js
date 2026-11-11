@@ -59,8 +59,8 @@ const ABGACharts = (function() {
     datasets.push({
       label: 'Current Patient ABGA',
       data: [{ x: 7.40, y: 24.0 }],
-      borderColor: '#ffffff',
-      backgroundColor: '#38bdf8',
+      borderColor: '#0284c7',
+      backgroundColor: '#0284c7',
       pointRadius: 7,
       pointHoverRadius: 9,
       pointBorderWidth: 2,
@@ -173,8 +173,8 @@ const ABGACharts = (function() {
           {
             label: 'Current Patient PaO2 & SaO2',
             data: [{ x: 12.5, y: 98.0 }],
-            borderColor: '#ffffff',
-            backgroundColor: '#38bdf8',
+            borderColor: '#0284c7',
+            backgroundColor: '#0284c7',
             pointRadius: 7,
             pointHoverRadius: 9,
             pointBorderWidth: 2,

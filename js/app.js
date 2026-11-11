@@ -271,17 +271,17 @@
   function updateStatusBadges(analysis) {
     // pH Status
     let phStatus = 'Normal pH';
-    let phClass = 'text-slate-300 bg-slate-900 border-slate-800';
+    let phClass = 'text-slate-700 bg-slate-100 border-slate-200';
     if (state.pH < 7.35) {
       phStatus = state.pH < 7.20 ? 'Severe Acidemia' : 'Acidemia';
-      phClass = 'text-rose-400 bg-slate-900 border-slate-800';
+      phClass = 'text-rose-700 bg-rose-50 border-rose-200';
     } else if (state.pH > 7.45) {
       phStatus = state.pH > 7.55 ? 'Severe Alkalemia' : 'Alkalemia';
-      phClass = 'text-sky-400 bg-slate-900 border-slate-800';
+      phClass = 'text-sky-700 bg-sky-50 border-sky-200';
     }
     if (elements.badgePHStatus) {
       elements.badgePHStatus.textContent = phStatus;
-      elements.badgePHStatus.className = `px-2 py-0.5 rounded text-xs border ${phClass}`;
+      elements.badgePHStatus.className = `px-2 py-0.5 rounded text-xs border font-medium ${phClass}`;
     }
 
     // Primary Disorder
@@ -295,11 +295,11 @@
     if (elements.valHorovitzMmhg) elements.valHorovitzMmhg.textContent = horovitz.pf_mmHg.toFixed(0);
     if (elements.badgeHorovitz) {
       elements.badgeHorovitz.textContent = horovitz.ardsCategory;
-      let hClass = 'text-slate-300 bg-slate-900 border-slate-800';
-      if (horovitz.severity === 'mild') hClass = 'text-amber-400 bg-slate-900 border-slate-800';
-      if (horovitz.severity === 'moderate') hClass = 'text-orange-400 bg-slate-900 border-slate-800';
-      if (horovitz.severity === 'severe') hClass = 'text-rose-400 bg-slate-900 border-slate-800';
-      elements.badgeHorovitz.className = `px-2 py-0.5 rounded text-xs border ${hClass}`;
+      let hClass = 'text-slate-700 bg-slate-100 border-slate-200';
+      if (horovitz.severity === 'mild') hClass = 'text-sky-700 bg-sky-50 border-sky-200';
+      if (horovitz.severity === 'moderate') hClass = 'text-indigo-700 bg-indigo-50 border-indigo-200';
+      if (horovitz.severity === 'severe') hClass = 'text-rose-700 bg-rose-50 border-rose-200';
+      elements.badgeHorovitz.className = `px-2 py-0.5 rounded text-xs border font-medium ${hClass}`;
     }
 
     if (elements.valSaO2) elements.valSaO2.textContent = `${analysis.oxygenation.sao2.toFixed(1)}%`;
@@ -318,10 +318,10 @@
     if (elements.badgeAGStatus) {
       let agText = el.isHighAG ? 'Elevated AG' : (el.isLowAG ? 'Low AG' : 'Normal AG');
       let agColor = el.isHighAG 
-        ? 'text-rose-400 bg-slate-900 border-slate-800' 
-        : (el.isLowAG ? 'text-amber-400 bg-slate-900 border-slate-800' : 'text-slate-400 bg-slate-900 border-slate-800');
+        ? 'text-rose-700 bg-rose-50 border-rose-200' 
+        : (el.isLowAG ? 'text-indigo-700 bg-indigo-50 border-indigo-200' : 'text-slate-700 bg-slate-100 border-slate-200');
       elements.badgeAGStatus.textContent = agText;
-      elements.badgeAGStatus.className = `px-2 py-0.5 rounded text-xs border ${agColor}`;
+      elements.badgeAGStatus.className = `px-2 py-0.5 rounded text-xs border font-medium ${agColor}`;
     }
   }
 
@@ -369,53 +369,53 @@
     const isAcidemia = state.pH < 7.35;
     const isAlkalemia = state.pH > 7.45;
 
-    let summaryText = `Diagnosis: ${comp.primaryDisorder}. Blood pH is ${state.pH.toFixed(2)} (Safe zone: 7.35–7.45), with PaCO₂ at ${state.pco2_kPa.toFixed(1)} kPa (${ABGAEngine.kpaToMmhg(state.pco2_kPa).toFixed(0)} mmHg) and Bicarbonate [HCO₃⁻] at ${state.hco3.toFixed(1)} mmol/L.`;
+    let summaryText = `Diagnosis: ${comp.primaryDisorder}. Blood pH is ${state.pH.toFixed(2)} (Safe zone: 7.35-7.45), with PaCO2 at ${state.pco2_kPa.toFixed(1)} kPa (${ABGAEngine.kpaToMmhg(state.pco2_kPa).toFixed(0)} mmHg) and Bicarbonate [HCO3-] at ${state.hco3.toFixed(1)} mmol/L.`;
     
     let mechanismText = '';
     if (isAcidemia) {
       mechanismText = `Arterial blood is too acidic (pH < 7.35). `;
       if (state.pco2_kPa > 6.0 && state.hco3 < 22) {
-        mechanismText += `Double trouble (Mixed Acidosis): Both organs are contributing to acid buildup! The lungs are failing to breathe out CO₂ acid, and the kidneys/body have lost their protective bicarbonate base sponge.`;
+        mechanismText += `Double trouble (Mixed Acidosis): Both organs are contributing to acid buildup! The lungs are failing to breathe out CO2 acid, and the kidneys/body have lost their protective bicarbonate base sponge.`;
       } else if (state.pco2_kPa > 6.0) {
-        mechanismText += `The culprit is the lungs (Respiratory Acidosis). The patient is not breathing enough air out (hypoventilation), trapping CO₂ gas in the bloodstream. Because CO₂ dissolves into carbonic acid, holding onto CO₂ directly turns the blood acidic.`;
+        mechanismText += `The culprit is the lungs (Respiratory Acidosis). The patient is not breathing enough air out (hypoventilation), trapping CO2 gas in the bloodstream. Because CO2 dissolves into carbonic acid, holding onto CO2 directly turns the blood acidic.`;
       } else {
         mechanismText += `The culprit is the metabolism (Metabolic Acidosis). Either the body is accumulating fixed metabolic acids (like ketones, lactic acid, or ingested toxins) or it lost bicarbonate base directly (e.g. through diarrhea). Every molecule of acid consumes bicarbonate, causing pH to drop.`;
       }
     } else if (isAlkalemia) {
       mechanismText = `Arterial blood is too basic / alkaline (pH > 7.45). `;
       if (state.pco2_kPa < 4.7 && state.hco3 > 26) {
-        mechanismText += `Combined Alkalemia: The lungs are blowing off CO₂ acid (hyperventilation) while the kidneys or body have accumulated excess bicarbonate base (or lost gastric acid from vomiting).`;
+        mechanismText += `Combined Alkalemia: The lungs are blowing off CO2 acid (hyperventilation) while the kidneys or body have accumulated excess bicarbonate base (or lost gastric acid from vomiting).`;
       } else if (state.pco2_kPa < 4.7) {
-        mechanismText += `The culprit is the lungs (Respiratory Alkalosis). Rapid breathing (hyperventilation) is blowing out CO₂ acid much faster than the body produces it. Losing acid leaves the blood in an alkaline state.`;
+        mechanismText += `The culprit is the lungs (Respiratory Alkalosis). Rapid breathing (hyperventilation) is blowing out CO2 acid much faster than the body produces it. Losing acid leaves the blood in an alkaline state.`;
       } else {
         mechanismText += `The culprit is the metabolism (Metabolic Alkalosis). The body has accumulated excess bicarbonate base, often caused by losing stomach acid (vomiting) or taking diuretic medications.`;
       }
     } else {
-      mechanismText = `Arterial pH is in the safe physiological window (7.35 – 7.45). The ratio of bicarbonate base to dissolved CO₂ acid is well-balanced at approximately 20 to 1.`;
+      mechanismText = `Arterial pH is in the safe physiological window (7.35-7.45). The ratio of bicarbonate base to dissolved CO2 acid is well-balanced at approximately 20 to 1.`;
     }
 
     let respText = `Lungs' response: ${comp.compensationDetails}`;
     if (state.hco3 < 22) {
       const wMin = comp.rules.wintersMin_kPa.toFixed(1);
       const wMax = comp.rules.wintersMax_kPa.toFixed(1);
-      respText += ` Student rule of thumb (Winter's formula): For this bicarbonate level (${state.hco3.toFixed(1)} mmol/L), the lungs should breathe faster to push PaCO₂ down to ${wMin}–${wMax} kPa (${(comp.rules.wintersMin_kPa * 7.5).toFixed(0)}–${(comp.rules.wintersMax_kPa * 7.5).toFixed(0)} mmHg).`;
+      respText += ` Student rule of thumb (Winter's formula): For this bicarbonate level (${state.hco3.toFixed(1)} mmol/L), the lungs should breathe faster to push PaCO2 down to ${wMin}-${wMax} kPa (${(comp.rules.wintersMin_kPa * 7.5).toFixed(0)}-${(comp.rules.wintersMax_kPa * 7.5).toFixed(0)} mmHg).`;
     }
 
     let renalText = '';
     if (state.pco2_kPa > 6.0) {
-      renalText = `Kidneys' response: Kidneys take 2 to 3 days to help out. In acute CO₂ retention (hours), the kidneys haven't adapted yet. Over days of chronic lung disease, the kidneys retain bicarbonate to drag the pH back toward normal.`;
+      renalText = `Kidneys' response: Kidneys take 2 to 3 days to help out. In acute CO2 retention (hours), the kidneys haven't adapted yet. Over days of chronic lung disease, the kidneys retain bicarbonate to drag the pH back toward normal.`;
     } else if (state.pco2_kPa < 4.7) {
-      renalText = `Kidneys' response: If hyperventilation lasts for days, the kidneys gradually pee out excess bicarbonate into the urine to balance out the lost CO₂ acid.`;
+      renalText = `Kidneys' response: If hyperventilation lasts for days, the kidneys gradually pee out excess bicarbonate into the urine to balance out the lost CO2 acid.`;
     } else {
       renalText = `Kidneys' response: Renal acid excretion and bicarbonate reabsorption are operating normally.`;
     }
 
-    let agText = `Anion Gap is ${analysis.electrolytes.rawAG.toFixed(1)} mmol/L (Normal average: 12 mmol/L, reference: 10–14 mmol/L). `;
+    let agText = `Anion Gap is ${analysis.electrolytes.rawAG.toFixed(1)} mmol/L (Normal average: 12 mmol/L, reference: 10-14 mmol/L). `;
     agText += analysis.electrolytes.isHighAG 
       ? `High Anion Gap (> 14 mmol/L) confirms "mystery acids" (like ketones, lactic acid, or poisons from GOLD MARK) entered the blood and destroyed bicarbonate.` 
-      : `Normal Anion Gap (10–14 mmol/L) indicates no mystery acid; if acidic, it's a base-loss disorder where chloride replaces bicarbonate (HARDUPS).`;
+      : `Normal Anion Gap (10-14 mmol/L) indicates no mystery acid; if acidic, it's a base-loss disorder where chloride replaces bicarbonate (HARDUPS).`;
 
-    let o2Text = `Oxygenation: PaO₂ is ${state.paO2_kPa.toFixed(1)} kPa (${ABGAEngine.kpaToMmhg(state.paO2_kPa).toFixed(0)} mmHg). `;
+    let o2Text = `Oxygenation: PaO2 is ${state.paO2_kPa.toFixed(1)} kPa (${ABGAEngine.kpaToMmhg(state.paO2_kPa).toFixed(0)} mmHg). `;
     o2Text += `The A-a oxygen gradient is ${analysis.oxygenation.aaDO2_kPa.toFixed(1)} kPa (expected: ~${analysis.oxygenation.expAaDO2_kPa.toFixed(1)} kPa). `;
     o2Text += analysis.oxygenation.isAaDO2Elevated 
       ? `High A-a gradient means the lung tissue itself is diseased or obstructed (e.g. pneumonia, PE, ARDS).` 
@@ -430,12 +430,12 @@
 
     if (elements.explainPearls) {
       elements.explainPearls.innerHTML = `
-        <li class="flex items-start gap-2 text-xs text-slate-300">
-          <span class="text-sky-400 font-bold">•</span>
+        <li class="flex items-start gap-2 text-xs text-slate-700">
+          <span class="text-sky-600 font-bold">•</span>
           <span>Bohr Effect: When blood is ${isAcidemia ? 'acidic, hemoglobin lets go of oxygen more easily (curve shifts RIGHT)' : 'alkaline, hemoglobin holds onto oxygen tightly (curve shifts LEFT)'}.</span>
         </li>
-        <li class="flex items-start gap-2 text-xs text-slate-300">
-          <span class="text-sky-400 font-bold">•</span>
+        <li class="flex items-start gap-2 text-xs text-slate-700">
+          <span class="text-sky-600 font-bold">•</span>
           <span>Golden Exam Rule: The body never overcompensates. If you started with an acidosis, compensation will never turn the blood alkaline!</span>
         </li>
       `;
@@ -688,11 +688,11 @@
 
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
-        btn.classList.add('text-slate-200', 'bg-slate-800');
-        btn.classList.remove('text-slate-400');
+        btn.classList.add('text-slate-900', 'bg-white', 'shadow-xs', 'border', 'border-slate-200/80');
+        btn.classList.remove('text-slate-600', 'hover:text-slate-900');
       } else {
-        btn.classList.remove('text-slate-200', 'bg-slate-800');
-        btn.classList.add('text-slate-400');
+        btn.classList.remove('text-slate-900', 'bg-white', 'shadow-xs', 'border', 'border-slate-200/80');
+        btn.classList.add('text-slate-600', 'hover:text-slate-900');
       }
     });
 
@@ -725,36 +725,43 @@
     if (elements.therapyUrgencyBadge) {
       elements.therapyUrgencyBadge.textContent = protocol.urgency;
       const color = protocol.urgencyColor || 'emerald';
-      elements.therapyUrgencyBadge.className = `px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-${color}-950/80 text-${color}-300 border border-${color}-800/60`;
+      let badgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      if (color === 'rose' || color === 'red') badgeStyle = 'bg-rose-50 text-rose-800 border-rose-200';
+      else if (color === 'amber' || color === 'orange') badgeStyle = 'bg-sky-50 text-sky-800 border-sky-200';
+      else if (color === 'sky' || color === 'blue') badgeStyle = 'bg-sky-50 text-sky-800 border-sky-200';
+      elements.therapyUrgencyBadge.className = `px-2.5 py-0.5 rounded text-[10px] font-sans font-semibold border ${badgeStyle}`;
     }
     if (elements.therapyKeyConcept) {
-      elements.therapyKeyConcept.innerHTML = `<span class="text-emerald-400 font-semibold block mb-0.5">Core Clinical Target:</span> ${protocol.keyConcept}`;
+      elements.therapyKeyConcept.innerHTML = `
+        <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 text-xs text-slate-800 leading-relaxed font-sans">
+          <span class="text-sky-800 font-bold uppercase text-[10px] tracking-wider block mb-0.5">Core Clinical Target:</span>
+          <p class="text-slate-800 font-medium">${protocol.keyConcept}</p>
+        </div>
+      `;
     }
 
     if (elements.therapyStepsContainer) {
       elements.therapyStepsContainer.innerHTML = protocol.steps.map(s => `
-        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1.5 transition-all hover:border-slate-700">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/70 font-mono font-bold text-[10px]">
-                STEP ${s.step}
-              </span>
-              <span class="font-semibold text-slate-100 text-xs">${s.action}</span>
-            </div>
+        <div class="p-3.5 rounded-lg bg-white border border-slate-200 space-y-2.5 shadow-2xs hover:border-slate-300 transition-colors font-sans">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-sans font-bold text-[10px]">
+              STEP ${s.step}
+            </span>
+            <span class="font-bold text-slate-900 text-xs sm:text-[13px]">${s.action}</span>
           </div>
 
-          <div class="text-[11px] font-mono text-sky-300 bg-slate-950/80 px-2 py-1 rounded border border-slate-800/80">
-            <span class="text-slate-500 font-sans uppercase text-[10px] tracking-wider block sm:inline mr-1">Target / Dosing:</span>
-            ${s.dosing}
+          <div class="text-xs text-slate-800 bg-slate-50 p-2.5 rounded-md border border-slate-200">
+            <span class="text-slate-500 uppercase font-bold text-[10px] tracking-wider block sm:inline mr-1.5">Target / Dosing:</span>
+            <span class="text-sky-800 font-semibold">${s.dosing}</span>
           </div>
 
-          <p class="text-xs text-slate-300 leading-relaxed pt-0.5">
-            <strong class="text-emerald-400 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
+          <p class="text-xs text-slate-700 leading-relaxed">
+            <strong class="text-teal-800 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
           </p>
 
           ${s.pitfall ? `
-            <div class="mt-1 p-2 rounded bg-amber-950/30 border border-amber-900/50 text-[11px] text-amber-200 leading-relaxed flex items-start gap-1.5">
-              <span class="shrink-0 text-amber-400 font-bold">⚠️ Pitfall:</span>
+            <div class="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-[11px] text-rose-900 leading-relaxed flex items-start gap-2">
+              <span class="shrink-0 text-rose-700 font-bold">Clinical Trap:</span>
               <span>${s.pitfall}</span>
             </div>
           ` : ''}
@@ -778,25 +785,33 @@
     }
     if (elements.therapyUrgencyBadge) {
       elements.therapyUrgencyBadge.textContent = (isAcid || isAlk) ? 'Active Deviation' : 'Normal Range';
-      elements.therapyUrgencyBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-sky-950 text-sky-300 border border-sky-800';
+      elements.therapyUrgencyBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-sans font-semibold bg-sky-50 text-sky-800 border border-sky-200';
     }
     if (elements.therapyKeyConcept) {
-      elements.therapyKeyConcept.innerHTML = `<span class="text-sky-400 font-semibold block mb-0.5">Custom Simulation Mode:</span> You are adjusting custom physiological parameters. To inspect disease-specific pharmacological protocols (e.g. DKA, Methanol, Aspirin, Sepsis, COPD), select a clinical scenario preset above or open the <strong>Therapy Manual</strong> tab.`;
+      elements.therapyKeyConcept.innerHTML = `
+        <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 text-xs text-slate-800 leading-relaxed font-sans">
+          <span class="text-sky-800 font-bold uppercase text-[10px] tracking-wider block mb-0.5">Custom Simulation Mode:</span>
+          <p class="text-slate-800">You are adjusting custom physiological parameters. To inspect disease-specific protocols (DKA, Methanol, Aspirin, Sepsis, COPD), select a clinical scenario preset above or open the <strong>Therapy Manual</strong> tab.</p>
+        </div>
+      `;
     }
 
     if (elements.therapyStepsContainer) {
       const step1Action = isAcid ? 'Assess ABCs & Hemodynamic Perfusion' : (isAlk ? 'Assess Volume & Chloride Responsiveness' : 'Maintain Baseline Physiological Solute & Water Intake');
-      const step1Dosing = isAcid ? 'Airway patency, SpO₂ > 92%, IV access, fluid resuscitation if hypotensive' : (isAlk ? 'Check urine chloride (UCl < 20 = Saline responsive; UCl > 20 = Saline resistant)' : 'Balanced hydration 25–30 mL/kg/day');
+      const step1Dosing = isAcid ? 'Airway patency, SpO2 > 92%, IV access, fluid resuscitation if hypotensive' : (isAlk ? 'Check urine chloride (UCl < 20 = Saline responsive; UCl > 20 = Saline resistant)' : 'Balanced hydration 25-30 mL/kg/day');
       const step1Why = isAcid ? 'Acidemia impairs myocardial contractility and induces peripheral vasodilation. Restoring perfusion improves tissue oxygen delivery.' : (isAlk ? 'Most metabolic alkalosis is maintained by volume contraction and chloride depletion.' : 'Supports normal renal and respiratory excretion.');
 
       elements.therapyStepsContainer.innerHTML = `
-        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1.5">
+        <div class="p-3.5 rounded-lg bg-white border border-slate-200 space-y-2 font-sans">
           <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 font-mono font-bold text-[10px]">GUIDELINE</span>
-            <span class="font-semibold text-slate-100 text-xs">${step1Action}</span>
+            <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 font-sans font-bold text-[10px]">GUIDELINE</span>
+            <span class="font-bold text-slate-900 text-xs">${step1Action}</span>
           </div>
-          <div class="text-[11px] font-mono text-sky-300 bg-slate-950/80 px-2 py-1 rounded border border-slate-800/80">${step1Dosing}</div>
-          <p class="text-xs text-slate-300 leading-relaxed"><strong class="text-sky-400">Physiology:</strong> ${step1Why}</p>
+          <div class="text-xs text-slate-800 bg-slate-50 p-2.5 rounded border border-slate-200">
+            <span class="text-slate-500 uppercase font-bold text-[10px] tracking-wider block sm:inline mr-1.5">Dosing &amp; Regimen:</span>
+            <span class="text-sky-800 font-semibold">${step1Dosing}</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed"><strong class="text-teal-800 font-semibold">Physiological Rationale:</strong> ${step1Why}</p>
         </div>
       `;
     }
@@ -823,56 +838,60 @@
       if (isVisible) visibleCount++;
 
       const color = proto.urgencyColor || 'emerald';
+      let badgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      if (color === 'rose' || color === 'red') badgeStyle = 'bg-rose-50 text-rose-800 border-rose-200';
+      else if (color === 'amber' || color === 'orange') badgeStyle = 'bg-sky-50 text-sky-800 border-sky-200';
+      else if (color === 'sky' || color === 'blue') badgeStyle = 'bg-sky-50 text-sky-800 border-sky-200';
 
       return `
-        <article class="therapy-card clean-panel p-4 sm:p-5 space-y-4 border border-slate-800 transition-all ${isVisible ? '' : 'hidden'}" data-therapy-id="${proto.id}">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+        <article class="therapy-card clean-panel p-5 space-y-4 bg-white border border-slate-200 shadow-xs transition-all ${isVisible ? '' : 'hidden'}" data-therapy-id="${proto.id}">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-900 text-slate-300 border border-slate-800">
+                <span class="px-2 py-0.5 rounded text-[10px] font-sans font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                   ${proto.category}
                 </span>
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-${color}-950 text-${color}-300 border border-${color}-800">
+                <span class="px-2 py-0.5 rounded text-[10px] font-sans font-semibold border ${badgeStyle}">
                   ${proto.urgency}
                 </span>
               </div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-100">${proto.title}</h3>
+              <h3 class="text-base font-bold text-slate-900">${proto.title}</h3>
             </div>
             
-            <button type="button" onclick="applyPreset('${proto.id}'); switchTab('simulator');" class="self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-800/80 transition-colors flex items-center gap-1.5">
+            <button type="button" onclick="applyPreset('${proto.id}'); switchTab('simulator');" class="self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 transition-colors flex items-center gap-1.5">
               <span>Load in Simulator</span>
               <span>→</span>
             </button>
           </div>
 
-          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs text-slate-200 leading-relaxed font-mono">
-            <span class="text-emerald-400 font-semibold block font-sans uppercase text-[10px] tracking-wider mb-0.5">Core Clinical Target:</span>
-            ${proto.keyConcept}
+          <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 text-xs text-slate-800 leading-relaxed font-sans">
+            <span class="text-sky-800 font-bold uppercase text-[10px] tracking-wider block mb-0.5">Core Clinical Target:</span>
+            <p class="text-slate-800 font-medium">${proto.keyConcept}</p>
           </div>
 
           <!-- Step by Step Grid -->
-          <div class="space-y-3 pt-1">
+          <div class="space-y-2.5 pt-1">
             ${proto.steps.map(s => `
-              <div class="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800/80 space-y-2">
+              <div class="p-3.5 rounded-lg bg-slate-50/70 border border-slate-200 space-y-2 font-sans">
                 <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/70 font-mono font-bold text-[10px]">
+                  <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-sans font-bold text-[10px]">
                     STEP ${s.step}
                   </span>
-                  <h4 class="font-bold text-slate-100 text-xs sm:text-[13px]">${s.action}</h4>
+                  <h4 class="font-bold text-slate-900 text-xs sm:text-[13px]">${s.action}</h4>
                 </div>
 
-                <div class="text-[11px] font-mono text-sky-300 bg-slate-950 p-2 rounded border border-slate-800">
-                  <span class="text-slate-500 font-sans uppercase text-[10px] tracking-wider block sm:inline mr-1">Dosing &amp; Regimen:</span>
-                  ${s.dosing}
+                <div class="text-xs text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs font-sans">
+                  <span class="text-slate-500 uppercase font-bold text-[10px] tracking-wider block sm:inline mr-1.5">Dosing &amp; Regimen:</span>
+                  <span class="text-sky-800 font-semibold">${s.dosing}</span>
                 </div>
 
-                <p class="text-xs text-slate-300 leading-relaxed">
-                  <strong class="text-emerald-400 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
+                <p class="text-xs text-slate-700 leading-relaxed">
+                  <strong class="text-teal-800 font-semibold">The "Why" (Physiological Rationale):</strong> ${s.why}
                 </p>
 
                 ${s.pitfall ? `
-                  <div class="p-2.5 rounded bg-amber-950/25 border border-amber-900/50 text-[11px] text-amber-200 leading-relaxed flex items-start gap-2">
-                    <span class="shrink-0 text-amber-400 font-bold">⚠️ Clinical Trap:</span>
+                  <div class="p-2.5 rounded bg-rose-50 border border-rose-200 text-[11px] text-rose-900 leading-relaxed flex items-start gap-2">
+                    <span class="shrink-0 text-rose-700 font-bold">Clinical Trap:</span>
                     <span>${s.pitfall}</span>
                   </div>
                 ` : ''}
@@ -940,14 +959,14 @@
       optBtn.className = `w-full text-left p-3.5 rounded-xl border transition-all duration-200 flex items-start gap-3 ${
         answeredIndex !== undefined
           ? (opt.isCorrect 
-              ? 'bg-emerald-950/50 border-emerald-500 text-emerald-200' 
-              : (answeredIndex === idx ? 'bg-red-950/50 border-red-500 text-red-200' : 'bg-slate-800/40 border-slate-700/60 text-slate-400 opacity-60'))
-          : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 hover:border-indigo-500/60 text-slate-200'
+              ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-medium' 
+              : (answeredIndex === idx ? 'bg-rose-50 border-rose-500 text-rose-950 font-medium' : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'))
+          : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-sky-400 text-slate-800 shadow-xs'
       }`;
 
       const letterBadge = String.fromCharCode(65 + idx);
       optBtn.innerHTML = `
-        <span class="w-6 h-6 rounded-md bg-slate-700/80 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${letterBadge}</span>
+        <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-slate-200">${letterBadge}</span>
         <span class="text-sm font-medium leading-relaxed">${opt.text}</span>
       `;
 
@@ -991,18 +1010,18 @@
     feedbackEl.classList.remove('hidden');
 
     feedbackEl.innerHTML = `
-      <div class="font-semibold text-xs mb-1.5 ${isCorrect ? 'text-sky-300' : 'text-rose-400'}">
-        ${isCorrect ? 'Correct' : 'Incorrect'}
+      <div class="font-semibold text-xs mb-1.5 ${isCorrect ? 'text-sky-700' : 'text-rose-700'}">
+        ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
       </div>
-      <p class="text-slate-300 mb-2.5">${opt.feedback}</p>
-      <div class="border-t border-slate-800 pt-2 space-y-1.5">
+      <p class="text-slate-700 mb-2.5">${opt.feedback}</p>
+      <div class="border-t border-slate-200 pt-2 space-y-1.5">
         <div>
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Pathophysiology</span>
-          <p class="text-slate-300 mt-0.5">${caseData.explanation}</p>
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Pathophysiology</span>
+          <p class="text-slate-800 mt-0.5">${caseData.explanation}</p>
         </div>
         <div class="pt-1">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Exam Pearl</span>
-          <p class="text-slate-300 mt-0.5">${caseData.pearl}</p>
+          <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Exam Pearl</span>
+          <p class="text-slate-800 mt-0.5">${caseData.pearl}</p>
         </div>
       </div>
     `;
